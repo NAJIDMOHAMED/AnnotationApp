@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Page</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-8 offset-md-2">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="text-center" th:text="${message}">Welcome Message</h2>
+                    </div>
+                    <div class="card-body">
+                        <h4>Current Time:</h4>
+                        <p th:text="${#temporals.format(currentTime, 'yyyy-MM-dd HH:mm:ss')}">Time</p>
+
+                        <h4>List of Items:</h4>
+                        <ul class="list-group">
+                            <li class="list-group-item" th:each="item : ${items}" th:text="${item}">Item</li>
+                        </ul>
+
+                        <div class="mt-4">
+                            <a th:href="@{/test/hello}" class="btn btn-primary">Go to Hello Page</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html> 

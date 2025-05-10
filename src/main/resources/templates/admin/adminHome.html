@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Home</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div th:replace="fragments/adminHeader :: header"></div>
+
+    <div class="container">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container-fluid">
+                <div th:replace="fragments/menu :: menu"></div>
+            </div>
+        </nav>
+
+        <h3>Administration home page</h3>
+        <p>Hello and welcome to your application</p>
+
+        <div sec:authorize="isAuthenticated()">
+            <p>
+                You are connected with: <span sec:authentication="name"></span><br>
+                Your Email: <span sec:authentication="principal.email"></span><br>
+                Your First Name: <span sec:authentication="principal.firstName"></span><br>
+                Your Last name: <span sec:authentication="principal.LastName"></span><br>
+            </p>
+        </div>
+
+        <div th:if="${userInfos != null}">
+            <p>
+                Nom: <span th:text="${userInfos.nom}"></span><br>
+                Prénom: <span th:text="${userInfos.prenom}"></span><br>
+                ID Personne: <span th:text="${userInfos.idPersonne}"></span><br>
+                ID Compte: <span th:text="${userInfos.idCompte}"></span><br>
+                Email: <span th:text="${userInfos.email}"></span><br>
+            </p>
+        </div>
+    </div>
+
+    <div th:replace="fragments/adminfooter :: footer"></div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html> 
