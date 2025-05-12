@@ -27,12 +27,13 @@ public class AnnotatorController {
     }
 
     // Web interface endpoint
-    @GetMapping("/annotators")
+    @GetMapping("/annotator/list")
     public String listAnnotators(Model model) {
         List<Annotator> annotators = annotatorService.getAllAnnotators();
         model.addAttribute("annotators", annotators);
         return "annotator/list";
     }
+
 
     // REST API endpoints
     @PostMapping("/api/annotators")

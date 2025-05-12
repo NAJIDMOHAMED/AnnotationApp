@@ -21,6 +21,8 @@ public class ThymeleafConfig {
         return templateResolver;
     }
 
+
+
     @Bean
     public SpringTemplateEngine templateEngine() {
         SpringTemplateEngine templateEngine = new SpringTemplateEngine();

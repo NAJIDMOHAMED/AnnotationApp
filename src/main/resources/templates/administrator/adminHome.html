@@ -1,48 +1,176 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Home</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <link href="/css/admin-dashboard.css" rel="stylesheet">
 </head>
-<body>
-    <div th:replace="fragments/adminHeader :: header"></div>
+<body class="bg-light">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h4 class="mb-0">Annotation App</h4>
+            <small class="text-muted">Admin Dashboard</small>
+        </div>
+        <ul class="sidebar-menu">
+            <li>
+                <a href="/admin/adminHome" class="active">
+                    <i class='bx bxs-dashboard'></i>
+                    Dashboard
+                </a>
+            </li>
+            <li>
+                <a href="/annotator/list">
+                    <i class='bx bxs-user-detail'></i>
+                    Annotators
+                </a>
+            </li>
+            <li>
+                <a href="/dataset/list">
+                    <i class='bx bxs-data'></i>
+                    Datasets
+                </a>
+            </li>
+            <li>
+                <a href="/administrator">
+                    <i class='bx bxs-cog'></i>
+                    Settings
+                </a>
+            </li>
+        </ul>
+    </div>
 
-    <div class="container">
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <div class="container-fluid">
-                <div th:replace="fragments/menu :: menu"></div>
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Bar -->
+        <div class="top-bar d-flex justify-content-between align-items-center">
+            <div>
+                <h4 class="mb-0">Dashboard</h4>
+                <small class="text-muted">Welcome back, Admin</small>
             </div>
-        </nav>
-
-        <h3>Administration home page</h3>
-        <p>Hello and welcome to your application</p>
-
-        <div sec:authorize="">
-            <p>
-                You are connected with: <span sec:authentication=""></span><br>
-                Your Email: <span sec:authentication="principal.email"></span><br>
-                Your First Name: <span sec:authentication="principal.firstName"></span><br>
-                Your Last name: <span sec:authentication="principal.LastName"></span><br>
-            </p>
+            <div class="d-flex align-items-center gap-3">
+                <input type="search" class="search-box" placeholder="Search...">
+                <div class="user-profile">
+                    <div class="user-avatar">
+                        <i class='bx bxs-user'></i>
+                    </div>
+                    <div>
+                        <h6 class="mb-0">Admin User</h6>
+                        <small class="text-muted">Administrator</small>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div th:if="${userInfos != null}">
-            <p>
-                Nom: <span th:text="${userInfos.nom}"></span><br>
-                Prénom: <span th:text="${userInfos.prenom}"></span><br>
-                ID Personne: <span th:text="${userInfos.idPersonne}"></span><br>
-                ID Compte: <span th:text="${userInfos.idCompte}"></span><br>
-                Email: <span th:text="${userInfos.email}"></span><br>
-            </p>
+        <!-- Stats Cards -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon bg-primary bg-opacity-10 text-primary">
+                        <i class='bx bxs-user-detail'></i>
+                    </div>
+                    <h3 class="mb-2">0</h3>
+                    <p class="text-muted mb-0">Active Annotators</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon bg-success bg-opacity-10 text-success">
+                        <i class='bx bxs-data'></i>
+                    </div>
+                    <h3 class="mb-2">0</h3>
+                    <p class="text-muted mb-0">Total Datasets</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon bg-warning bg-opacity-10 text-warning">
+                        <i class='bx bxs-check-circle'></i>
+                    </div>
+                    <h3 class="mb-2">0</h3>
+                    <p class="text-muted mb-0">Completed Tasks</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon bg-info bg-opacity-10 text-info">
+                        <i class='bx bxs-time'></i>
+                    </div>
+                    <h3 class="mb-2">0%</h3>
+                    <p class="text-muted mb-0">Average Progress</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="row g-4">
+            <!-- Recent Activities -->
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h5 class="mb-4">Recent Activities</h5>
+                    <div class="activity-item">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="mb-0">New Dataset Uploaded</h6>
+                            <small class="text-muted">3 days ago</small>
+                        </div>
+                        <p class="mb-0 text-muted">Dataset "Sample Dataset" was uploaded by Admin</p>
+                    </div>
+                    <div class="activity-item">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="mb-0">New Annotator Registered</h6>
+                            <small class="text-muted">5 days ago</small>
+                        </div>
+                        <p class="mb-0 text-muted">John Doe joined as an annotator</p>
+                    </div>
+                    <div class="activity-item">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="mb-0">Task Assignment</h6>
+                            <small class="text-muted">1 week ago</small>
+                        </div>
+                        <p class="mb-0 text-muted">New tasks assigned to annotators</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h5 class="mb-4">Quick Actions</h5>
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <a href="/annotator/list" class="btn btn-primary w-100 py-3">
+                                <i class='bx bxs-user-plus me-2'></i>
+                                Add Annotator
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="/dataset/create" class="btn btn-success w-100 py-3">
+                                <i class='bx bxs-upload me-2'></i>
+                                Create Dataset
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="/task/assign" class="btn btn-info w-100 py-3">
+                                <i class='bx bxs-task me-2'></i>
+                                Assign Tasks
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="/report/generate" class="btn btn-warning w-100 py-3">
+                                <i class='bx bxs-report me-2'></i>
+                                Generate Report
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div th:replace="fragments/adminfooter :: footer"></div>
-
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
-</html> 
+</html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administrator Profile</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <link href="/css/administrator-view.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div th:if="${administrator == null}" class="alert alert-info mt-5">
+            No administrator profile found.
+        </div>
+
+        <div th:if="${administrator != null}" class="admin-profile-card mt-5">
+            <div class="admin-profile-header">
+                <div class="admin-avatar">
+                    <i class='bx bxs-user'></i>
+                </div>
+                <div class="admin-profile-title" th:text="${administrator.prenom} + ' ' + ${administrator.nom}">Admin Name</div>
+                <div class="admin-profile-email" th:text="${administrator.email}">admin@email.com</div>
+            </div>
+            <form id="adminForm" th:data-id="${administrator.idUser}">
+                <div class="form-floating mb-4">
+                    <input type="text" class="form-control" id="prenom" th:value="${administrator.prenom}" required placeholder="First Name">
+                    <label for="prenom"><i class='bx bx-user me-2'></i>First Name</label>
+                </div>
+                <div class="form-floating mb-4">
+                    <input type="text" class="form-control" id="nom" th:value="${administrator.nom}" required placeholder="Last Name">
+                    <label for="nom"><i class='bx bx-user me-2'></i>Last Name</label>
+                </div>
+                <div class="form-floating mb-4">
+                    <input type="email" class="form-control" id="email" th:value="${administrator.email}" required placeholder="Email">
+                    <label for="email"><i class='bx bx-envelope me-2'></i>Email</label>
+                </div>
+                <div class="form-floating mb-2">
+                    <input type="password" class="form-control" id="password" placeholder="Enter new password">
+                    <label for="password"><i class='bx bx-lock-alt me-2'></i>Password</label>
+                </div>
+                <small class="text-muted">Leave blank to keep current password</small>
+                <button type="submit" class="btn btn-primary admin-form-btn w-100">Update Profile</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('adminForm')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = {
+                prenom: document.getElementById('prenom').value,
+                nom: document.getElementById('nom').value,
+                email: document.getElementById('email').value
+            };
+            const password = document.getElementById('password').value;
+            if (password) {
+                formData.password = password;
+            }
+            fetch('/api/administrator', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert('Profile updated successfully');
+                    window.location.reload();
+                } else {
+                    response.json().then(data => {
+                        alert('Error: ' + (data.error || 'Failed to update profile'));
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error updating profile');
+            });
+        });
+    </script>
+</body>
+</html> 

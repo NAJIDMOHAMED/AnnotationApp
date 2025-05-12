@@ -1,0 +1,65 @@
+body {
+    background: linear-gradient(135deg, #f8fafc 0%, #e0e7ef 100%);
+    min-height: 100vh;
+}
+.dataset-card {
+    max-width: 480px;
+    margin: 48px auto;
+    border-radius: 1.5rem;
+    box-shadow: 0 8px 32px rgba(60,72,100,0.12);
+    background: #fff;
+    padding: 2.5rem 2.5rem 2rem 2.5rem;
+    position: relative;
+}
+.dataset-title {
+    font-weight: 700;
+    font-size: 1.7rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    letter-spacing: 0.5px;
+}
+.form-floating > .form-control, .form-floating > .form-select {
+    border-radius: 0.75rem;
+    border: 2px solid #e0e7ef;
+    background: #f8fafc;
+}
+.form-floating > label {
+    color: #6c757d;
+}
+.input-group-text {
+    background: #f8fafc;
+    border: 2px solid #e0e7ef;
+    border-right: 0;
+    border-radius: 0.75rem 0 0 0.75rem;
+}
+.form-control:focus {
+    border-color: #4f8cff;
+    box-shadow: 0 0 0 0.1rem #4f8cff33;
+}
+.dataset-form-file {
+    border-radius: 0.75rem;
+    border: 2px solid #e0e7ef;
+    background: #f8fafc;
+}
+.progress {
+    height: 8px;
+    border-radius: 4px;
+    margin-bottom: 1.2rem;
+}
+.dataset-form-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2rem;
+}
+.dataset-form-btn {
+    min-width: 120px;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    font-size: 1.1rem;
+    letter-spacing: 0.5px;
+}
+@media (max-width: 600px) {
+    .dataset-card {
+        padding: 1.2rem 0.5rem;
+    }
+} 

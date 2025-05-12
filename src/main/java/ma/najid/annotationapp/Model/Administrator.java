@@ -2,10 +2,12 @@ package ma.najid.annotationapp.Model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Entity
 @Data
-//@DiscriminatorValue("ADMIN_ROLE")
+@DiscriminatorValue("ADMINISTRATOR_ROLE")
+@EqualsAndHashCode(callSuper = true)
 public class Administrator extends UserAccount {
-    // No need for additional ID field as it inherits from Utilisateur
+    // Additional administrator-specific fields can be added here
 }
