@@ -1,52 +1,52 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Annotation App</title>
-    <link rel="stylesheet" th:href="@{/css/login.css}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Annotation App</title>
+  <link rel="stylesheet" th:href="@{/css/login.css}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <div class="login-container">
-        <div class="login-header">
-            <h2>Welcome Back</h2>
-            <p>Please sign in to continue</p>
-        </div>
-        <form th:action="@{/login}" method="post">
-            <div class="form-group">
-                <input type="email" name="email" placeholder="Email" required/>
-                <i class="fas fa-envelope"></i>
-            </div>
-            <div class="form-group">
-                <input type="password" name="password" placeholder="Password" required/>
-                <i class="fas fa-lock"></i>
-            </div>
-            <button type="submit" class="login-button">
-                <i class="fas fa-sign-in-alt"></i> Sign In
-            </button>
-        </form>
-        <p th:if="${error}" th:text="${error}" class="error-message"></p>
+<div class="login-container">
+  <div class="login-header">
+    <h2>Welcome Back</h2>
+    <p>Please sign in to continue</p>
+  </div>
+  <form th:action="@{/login}" method="post">
+    <div class="form-group">
+      <input type="email" name="email" placeholder="Email" required/>
+      <i class="fas fa-envelope"></i>
     </div>
+    <div class="form-group">
+      <input type="password" name="password" placeholder="Password" required/>
+      <i class="fas fa-lock"></i>
+    </div>
+    <button type="submit" class="login-button">
+      <i class="fas fa-sign-in-alt"></i> Sign In
+    </button>
+  </form>
+  <p th:if="${error}" th:text="${error}" class="error-message"></p>
+</div>
 
-    <script>
-        // Add password visibility toggle
-        document.addEventListener('DOMContentLoaded', function() {
-            const passwordInput = document.querySelector('input[type="password"]');
-            const lockIcon = document.querySelector('.fa-lock');
-            
-            lockIcon.addEventListener('click', function() {
-                if (passwordInput.type === 'password') {
-                    passwordInput.type = 'text';
-                    lockIcon.classList.remove('fa-lock');
-                    lockIcon.classList.add('fa-lock-open');
-                } else {
-                    passwordInput.type = 'password';
-                    lockIcon.classList.remove('fa-lock-open');
-                    lockIcon.classList.add('fa-lock');
-                }
-            });
-        });
-    </script>
+<script>
+  // Add password visibility toggle
+  document.addEventListener('DOMContentLoaded', function() {
+    const passwordInput = document.querySelector('input[type="password"]');
+    const lockIcon = document.querySelector('.fa-lock');
+
+    lockIcon.addEventListener('click', function() {
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        lockIcon.classList.remove('fa-lock');
+        lockIcon.classList.add('fa-lock-open');
+      } else {
+        passwordInput.type = 'password';
+        lockIcon.classList.remove('fa-lock-open');
+        lockIcon.classList.add('fa-lock');
+      }
+    });
+  });
+</script>
 </body>
 </html>

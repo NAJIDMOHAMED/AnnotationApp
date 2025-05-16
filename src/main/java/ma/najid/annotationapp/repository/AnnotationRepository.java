@@ -10,6 +10,6 @@ import java.util.List;
 public interface AnnotationRepository extends JpaRepository<Annotation, Long> {
     List<Annotation> findByAnnotator_IdUser(Long annotatorId);
     List<Annotation> findByTextPair_IdTextPair(Long textPairId);
-    List<Annotation> findByPossibleClasses_IdPossibleClass(Long possibleClassesId);
+    List<Annotation> findByPossibleClass_IdPossibleClass(Long possibleClassId);
     List<Annotation> findByAnnotator_IdUserAndTextPair_IdTextPair(Long annotatorId, Long textPairId);
 } 

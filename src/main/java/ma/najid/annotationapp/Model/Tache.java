@@ -1,13 +1,19 @@
 package ma.najid.annotationapp.Model;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
-@Data
+@Getter
+@Setter
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Tache {
 
     @Id
@@ -21,15 +27,23 @@ public class Tache {
     @JoinColumn(name = "annotator_id")
     private Annotator annotator;
 
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(
-            name = "TextPair_Taches",
-            joinColumns = @JoinColumn(name = "id_tache"),
-            inverseJoinColumns = @JoinColumn(name = "id_text_pair") // ✅ cohérent avec TextPair
-    )
-    private Set<TextPair> textPairSet;
+    @OneToMany(mappedBy = "tache", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<TextPair> textPairs = new HashSet<>();
 
     @ManyToOne
     @JoinColumn(name = "id_dataset")
     private Dataset dataset;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Tache tache = (Tache) o;
+        return Objects.equals(idTache, tache.idTache);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(idTache);
+    }
 }

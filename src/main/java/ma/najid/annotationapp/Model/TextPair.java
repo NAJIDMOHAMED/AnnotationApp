@@ -1,14 +1,17 @@
 package ma.najid.annotationapp.Model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class TextPair {
@@ -18,19 +21,33 @@ public class TextPair {
     @Column(name = "id_text_pair") // ✅ Nom explicite et uniforme
     private Long idTextPair;
 
-    @Column
+    @Column(length = 2550)
     private String text1;
 
-    @Column
+    @Column(length = 2550)
     private String text2;
 
     @OneToMany(mappedBy = "textPair", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Annotation> annotations;
 
-    @ManyToMany(mappedBy = "textPairSet", cascade = CascadeType.ALL)
-    private Set<Tache> taches;
+    @ManyToOne
+    @JoinColumn(name = "tache_id")
+    private Tache tache;
 
     @ManyToOne
     @JoinColumn(name = "id_dataset")
     private Dataset dataset;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TextPair textPair = (TextPair) o;
+        return Objects.equals(idTextPair, textPair.idTextPair);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(idTextPair);
+    }
 }

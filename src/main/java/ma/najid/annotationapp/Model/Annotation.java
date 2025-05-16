@@ -2,6 +2,7 @@ package ma.najid.annotationapp.Model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import java.util.Date;
 
 @Entity
 @Data
@@ -12,14 +13,17 @@ public class Annotation {
     private Long idAnnotation;
 
     @ManyToOne
-    @JoinColumn(name = "id_possible_class")
-    private PossibleClasses possibleClasses;
-
-    @ManyToOne
-    @JoinColumn(name = "annotator_id")
+    @JoinColumn(name = "id_annotator")
     private Annotator annotator;
 
     @ManyToOne
-    @JoinColumn(name = "id_text_pair") // ✅ correspond au nom utilisé dans TextPair
+    @JoinColumn(name = "id_text_pair")
     private TextPair textPair;
+
+    @ManyToOne
+    @JoinColumn(name = "id_possible_class")
+    private PossibleClasses possibleClass;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date dateAnnotation;
 }

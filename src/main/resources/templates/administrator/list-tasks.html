@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liste des tâches</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-5">
+    <h2 class="mb-4">Liste des tâches</h2>
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+        <tr>
+            <th>Id</th>
+            <th>Nom d'utilisateur</th>
+            <th>Date limite</th>
+            <th>% Avancement</th>
+            <th>Field</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="tache : ${taches}">
+            <td th:text="${tache.idTache}"></td>
+            <td th:text="${tache.annotator != null ? tache.annotator.nom + ' ' + tache.annotator.prenom : 'Non assignée'}"></td>
+            <td th:text="${#dates.format(tache.dateLimite, 'dd/MM/yyyy')}"></td>
+            <td>
+                <span th:with="total=${tache.textPairs != null ? tache.textPairs.size() : 0},
+                              annotated=${tache.textPairs != null ? #lists.size(tache.textPairs.?[annotations != null and !annotations.isEmpty()]) : 0}"
+                      th:text="${total > 0 ? (annotated * 100 / total) : 0} + '%'"></span>
+            </td>
+            <td>
+                <span th:text="${tache.dateLimite != null && tache.dateLimite.time < T(java.util.Date).new().time ? 'Terminée' : 'En cours'}"></span>
+            </td>
+            <td>
+                <a th:href="@{'/annotate/tache/' + ${tache.idTache}}" class="btn btn-primary btn-sm">Travailler</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    <a href="/admin/adminHome" class="btn btn-secondary mt-3">Retour au dashboard</a>
+</div>
+</body>
+</html> 

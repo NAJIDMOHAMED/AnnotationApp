@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <title>Annotation</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/annotate.css}" >
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const radios = document.querySelectorAll('.radio-chip input[type="radio"]');
+            const form = document.querySelector('form');
+            const validerBtn = document.querySelector('.valider-btn');
+            
+            // Gestion des radios
+            radios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    radios.forEach(r => r.parentElement.classList.remove('selected'));
+                    if (this.checked) {
+                        this.parentElement.classList.add('selected');
+                    }
+                    validerBtn.disabled = false;
+                });
+            });
+
+            // Désactiver le bouton valider par défaut
+            if (validerBtn) validerBtn.disabled = true;
+
+            // Gestion de la validation
+            form.addEventListener('submit', function(e) {
+                if (validerBtn.disabled) {
+                    e.preventDefault();
+                    return;
+                }
+                
+                // Si c'est une validation, on change l'action pour aller au suivant
+                if (e.submitter && e.submitter.value === 'validate') {
+                    e.preventDefault();
+                    const nextIndex = parseInt(document.querySelector('input[name="index"]').value) + 1;
+                    const total = parseInt(document.querySelector('.progress span:last-child').textContent);
+                    const currentPage = Math.floor(nextIndex / 20);
+                    const maxPage = Math.ceil(total / 20) - 1;
+                    
+                    if (nextIndex < total) {
+                        if (nextIndex % 20 === 0 && currentPage <= maxPage) {
+                            // Si on atteint la fin d'une page, on change de page
+                            document.querySelector('input[name="page"]').value = currentPage;
+                            document.querySelector('input[name="action"]').value = 'page';
+                        } else {
+                            document.querySelector('input[name="action"]').value = 'next';
+                        }
+                        form.submit();
+                    } else {
+                        // Si c'est le dernier couple, on soumet normalement
+                        form.submit();
+                    }
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+<div class="annotation-container">
+    <div class="header-row">
+        <div><i class="fa-solid fa-hashtag" aria-hidden="true"></i> Id_Coupe : <span th:text="${tache.idTache}"></span></div>
+        <div><i class="fa-solid fa-fingerprint" aria-hidden="true"></i> Couple ID : <span th:text="${textPair.idTextPair}"></span></div>
+        <div>Description : <span th:text="${dataset.description}"></span></div>
+    </div>
+    <div class="progress" role="status" aria-live="polite">
+        <div class="progress-info">
+            <span th:text="${index + 1}"></span>/<span th:text="${total}"></span> à annoter
+        </div>
+        <div class="page-info">
+            Page <span th:text="${currentPage + 1}"></span>/<span th:text="${totalPages}"></span>
+        </div>
+    </div>
+    <form th:action="@{'/annotate/tache/' + ${tache.idTache}}" method="post" autocomplete="off">
+        <div class="input-label"><label for="text1">Text1</label></div>
+        <input id="text1" class="text-input" type="text" th:value="${textPair.text1}" readonly title="Texte 1" placeholder="Texte 1" aria-label="Premier texte à annoter"/>
+        <div class="input-label"><label for="text2">Text2</label></div>
+        <input id="text2" class="text-input" type="text" th:value="${textPair.text2}" readonly title="Texte 2" placeholder="Texte 2" aria-label="Deuxième texte à annoter"/>
+        <fieldset class="radio-group" aria-labelledby="annotation-legend">
+            <legend id="annotation-legend" class="visually-hidden">Choisissez une classe pour l'annotation</legend>
+            <th:block th:each="cls,iter : ${possibleClasses}">
+                <label class="radio-chip" th:for="${'classRadio' + iter.index}">
+                    <input type="radio" 
+                           name="possibleClassId" 
+                           th:id="${'classRadio' + iter.index}" 
+                           th:value="${cls.idPossibleClass}" 
+                           th:aria-label="${'Sélectionner la classe ' + cls.typeClass}"
+                           required/>
+                    <span th:text="${cls.typeClass}"></span>
+                </label>
+            </th:block>
+        </fieldset>
+        <input type="hidden" name="textPairId" th:value="${textPair.idTextPair}" title="Id du couple de texte" />
+        <input type="hidden" name="index" th:value="${index}" title="Index du couple" />
+        <input type="hidden" name="page" th:value="${currentPage}" title="Page courante" />
+        <input type="hidden" name="annotatorId" th:value="${annotatorId}" />
+        <div class="nav-btns">
+            <button type="submit" name="action" value="prev" th:disabled="${index == 0}" aria-label="Aller au couple précédent">
+                <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Précédent
+            </button>
+            <button type="submit" class="valider-btn" name="action" value="next" aria-label="Valider l'annotation">Valider</button>
+            <button type="submit" name="action" value="next" th:disabled="${index + 1 == total}" aria-label="Aller au couple suivant">
+                Suivant <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+            </button>
+        </div>
+    </form>
+    <div class="footer-info" role="note">
+        <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+        Utilisez les flèches pour naviguer, puis validez votre choix. 20 couples par page.
+    </div>
+</div>
+</body>
+</html>

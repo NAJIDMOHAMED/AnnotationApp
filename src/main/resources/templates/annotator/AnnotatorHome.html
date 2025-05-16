@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -150,6 +150,64 @@
             color: var(--white);
         }
 
+        .action-btn.primary {
+            background: var(--primary-color);
+            color: var(--white);
+        }
+
+        .action-btn.primary:hover {
+            background: var(--primary-hover);
+        }
+
+        .tasks-section {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+
+        .tasks-section h2 {
+            color: var(--text-color);
+            margin-bottom: 1.5rem;
+        }
+
+        .task-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .task-card {
+            background: var(--bg-color);
+            padding: 1.5rem;
+            border-radius: 8px;
+            transition: var(--transition);
+        }
+
+        .task-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow);
+        }
+
+        .task-title {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .task-info {
+            margin-bottom: 1rem;
+            color: #666;
+        }
+
+        .task-info p {
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
         @media (max-width: 768px) {
             .navbar {
                 padding: 1rem;
@@ -160,6 +218,10 @@
             }
 
             .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .task-grid {
                 grid-template-columns: 1fr;
             }
         }
@@ -188,27 +250,56 @@
         <div class="stats-grid">
             <div class="stat-card">
                 <h3>Total Tasks</h3>
-                <div class="number">12</div>
+                <div class="number" th:text="${user.taches.size()}">0</div>
             </div>
             <div class="stat-card">
                 <h3>Completed</h3>
-                <div class="number">5</div>
+                <div class="number" th:text="${user.annotations.size()}">0</div>
             </div>
             <div class="stat-card">
                 <h3>In Progress</h3>
-                <div class="number">3</div>
+                <div class="number" th:text="${user.taches.size() - user.annotations.size()}">0</div>
             </div>
             <div class="stat-card">
                 <h3>Pending</h3>
-                <div class="number">4</div>
+                <div class="number" th:text="${user.taches.size()}">0</div>
+            </div>
+        </div>
+
+        <div class="tasks-section">
+            <h2>Mes tâches d'annotation</h2>
+
+            <!-- Aucune tâche -->
+            <div th:if="${user.taches == null or #lists.isEmpty(user.taches)}" class="task-card">
+                <p th:if="${not #strings.isEmpty(noTaskMessage)}" th:text="${noTaskMessage}"></p>
+                <p th:unless="${not #strings.isEmpty(noTaskMessage)}">Vous n'avez aucune tâche à annoter pour le moment.</p>
+            </div>
+
+            <!-- Liste des tâches -->
+            <div th:unless="${user.taches == null or #lists.isEmpty(user.taches)}" class="task-grid">
+                <div th:each="tache : ${user.taches}" class="task-card">
+                    <h3 class="task-title" th:text="${tache.dataset.nom}">Task Name</h3>
+                    <div class="task-info">
+                        <p><i class="fas fa-calendar"></i> Date limite:
+                            <span th:text="${#dates.format(tache.dateLimite, 'dd/MM/yyyy')}">01/01/2025</span>
+                        </p>
+                        <p><i class="fas fa-list-check"></i> Couples à annoter:
+                            <span th:text="${tache.textPairs.size()}">0</span>
+                        </p>
+                    </div>
+                    <a th:href="@{'/annotate/tache/' + ${tache.idTache} + '?annotatorId=' + ${user.idUser}}" class="action-btn primary">
+                        <i class="fas fa-pen-to-square"></i> Commencer l'annotation
+                    </a>
+                </div>
             </div>
         </div>
 
         <div class="action-buttons">
-            <a href="/annotator/tasks" class="action-btn">
-                <i class="fas fa-tasks"></i> View Tasks
+            <a th:if="${user.taches != null and !#lists.isEmpty(user.taches)}"
+               th:href="@{'/annotate/tache/' + ${user.taches[0].idTache} + '?annotatorId=' + ${user.idUser}}"
+               class="action-btn primary">
+                <i class="fas fa-pen-to-square"></i> Commencer l'annotation
             </a>
-            
             <a th:href="@{/annotator/profile(id=${user.idUser})}" class="action-btn">
                 <i class="fas fa-user"></i> My Profile
             </a>
