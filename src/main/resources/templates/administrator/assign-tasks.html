@@ -84,6 +84,9 @@
 
             <!-- Liste des annotateurs -->
             <div class="col-md-8">
+                <div class="alert alert-info">
+                    Nombre d'annotateurs disponibles: <span th:text="${annotators.size()}">0</span>
+                </div>
                 <form id="assignTasksForm">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h4>Annotateurs disponibles</h4>
