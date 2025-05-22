@@ -38,6 +38,17 @@ public class TextPair {
     @JoinColumn(name = "id_dataset")
     private Dataset dataset;
 
+    @Column(name = "is_annotated")
+    private boolean isAnnotated = false;
+
+    public boolean isAnnotated() {
+        return annotations != null && !annotations.isEmpty();
+    }
+
+    public void updateAnnotationStatus() {
+        this.isAnnotated = isAnnotated();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

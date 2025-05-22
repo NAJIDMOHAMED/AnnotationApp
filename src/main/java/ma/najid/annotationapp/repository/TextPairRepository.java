@@ -11,4 +11,5 @@ public interface TextPairRepository extends JpaRepository<TextPair, Long> {
     List<TextPair> findByTacheIsNull();
     List<TextPair> findByDataset_IdDataset(Long datasetId);
     List<TextPair> findByText1ContainingOrText2Containing(String text1, String text2);
+    List<TextPair> findByDataset_IdDatasetAndTacheIsNull(Long datasetId);
 } 

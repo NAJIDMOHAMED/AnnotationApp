@@ -1,9 +1,6 @@
 package ma.najid.annotationapp.service.impl;
 
-import ma.najid.annotationapp.Model.TextPair;
-import ma.najid.annotationapp.Model.Dataset;
-import ma.najid.annotationapp.Model.PossibleClasses;
-import ma.najid.annotationapp.Model.Tache;
+import ma.najid.annotationapp.Model.*;
 import ma.najid.annotationapp.repository.DatasetRepository;
 import ma.najid.annotationapp.repository.TextPairRepository;
 import ma.najid.annotationapp.repository.PossibleClassesRepository;
@@ -25,6 +22,9 @@ import java.util.List;
 import java.util.HashSet;
 import java.util.Date;
 import java.util.Calendar;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Comparator;
 
 @Service
 public class DatasetServiceImpl implements DatasetService {
@@ -59,6 +59,9 @@ public class DatasetServiceImpl implements DatasetService {
         if (classes != null && !classes.trim().isEmpty()) {
             List<PossibleClasses> possibleClassesList = new ArrayList<>();
             String[] classArray = classes.split("[,;]");
+            if (classArray.length > 2) {
+                throw new IllegalArgumentException("Le nombre de classes séparées par ';' ne doit pas dépasser 2");
+            }
             
             for (String className : classArray) {
                 String trimmedClass = className.trim();
@@ -91,26 +94,28 @@ public class DatasetServiceImpl implements DatasetService {
                 List<TextPair> textPairs = new ArrayList<>();
 
                 Row headerRow = sheet.getRow(0);
-                if (headerRow == null) {
-                    throw new IllegalArgumentException("Excel file is empty or has no header row");
+                if (headerRow == null || headerRow.getPhysicalNumberOfCells() < 2) {
+                    workbook.close();
+                    throw new IllegalArgumentException("Le fichier Excel doit contenir au moins deux colonnes");
                 }
 
                 int sentence1Index = -1;
                 int sentence2Index = -1;
+                int found = 0;
 
-                // Find column indices
                 for (Cell cell : headerRow) {
-                    String header = cell.getStringCellValue().trim().toLowerCase();
-                    if (header.equals("sentence1")) {
+                    if (found == 0) {
                         sentence1Index = cell.getColumnIndex();
-                    } else if (header.equals("sentence2")) {
+                        found++;
+                    } else if (found == 1) {
                         sentence2Index = cell.getColumnIndex();
+                        break;
                     }
                 }
 
                 if (sentence1Index == -1 || sentence2Index == -1) {
                     workbook.close();
-                    throw new IllegalArgumentException("Excel file must contain 'sentence1' and 'sentence2' columns");
+                    throw new IllegalArgumentException("Impossible d'identifier deux colonnes de texte dans l'en-tête");
                 }
 
                 // Read data rows
@@ -166,10 +171,11 @@ public class DatasetServiceImpl implements DatasetService {
         }
         int totalPairs = textPairs.size();
         int annotatorCount = annotators.size();
-        int pairsPerAnnotator = totalPairs / annotatorCount;
+//        int pairsPerAnnotator = totalPairs / annotatorCount;
+        int pairsPerAnnotator = 20;
         int remaining = totalPairs % annotatorCount;
         int currentIndex = 0;
-        for (ma.najid.annotationapp.Model.Annotator annotator : annotators) {
+        for (Annotator annotator : annotators) {
             int count = pairsPerAnnotator + (remaining > 0 ? 1 : 0);
             if (remaining > 0) remaining--;
             List<TextPair> subList = textPairs.subList(currentIndex, Math.min(currentIndex + count, totalPairs));
@@ -249,6 +255,48 @@ public class DatasetServiceImpl implements DatasetService {
         }
 
         workbook.close();
+    }
+
+    @Override
+    public List<Dataset> findAll() {
+
+        return  datasetRepository.findAll();
+    }
+
+    @Override
+    public Dataset getDatasetById(Long id) {
+        return datasetRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    public List<Map<String, String>> getAnnotatedPairs(Long datasetId) {
+        List<TextPair> textPairs = textPairRepository.findByDataset_IdDataset(datasetId);
+        List<Map<String, String>> annotatedPairs = new ArrayList<>();
+
+        for (TextPair pair : textPairs) {
+            if (pair.isAnnotated()) {
+                Map<String, String> pairData = new HashMap<>();
+                pairData.put("id", pair.getIdTextPair().toString());
+                pairData.put("text1", pair.getText1());
+                pairData.put("text2", pair.getText2());
+                
+                // Get the latest annotation
+                String annotation = pair.getAnnotations().stream()
+                    .max(Comparator.comparing(Annotation::getDateAnnotation))
+                    .map(a -> a.getPossibleClass().getTypeClass())
+                    .orElse("");
+                
+                pairData.put("annotation", annotation);
+                annotatedPairs.add(pairData);
+            }
+        }
+
+        return annotatedPairs;
+    }
+
+    @Override
+    public int getRemainingPairs(Long datasetId) {
+        return textPairRepository.findByDataset_IdDatasetAndTacheIsNull(datasetId).size();
     }
 
 } 

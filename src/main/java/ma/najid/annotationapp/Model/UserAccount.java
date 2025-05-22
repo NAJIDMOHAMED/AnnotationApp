@@ -11,9 +11,11 @@ import lombok.AllArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Inheritance(strategy = InheritanceType.JOINED)
-@DiscriminatorColumn(name = "user_type")
+@DiscriminatorColumn(name = "dtype")
+@DiscriminatorValue("USER")
+@Table(name = "user_account")
 public  class UserAccount {
-
+    
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long idUser;
@@ -36,7 +38,7 @@ public  class UserAccount {
 	@NotBlank(message = "Password is required")
 	@Size(min = 4, message = "Password must be at least 6 characters long")
 	@Pattern(regexp = "^(?=.*[0-9])$",
-			 message = "Password must contain at least one digit, one uppercase letter, one lowercase letter, and one special character")
+			message = "Password must contain at least one digit, one uppercase letter, one lowercase letter, and one special character")
 	@Column(nullable = false)///(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\S+$).{6,}
 	private String password;
 

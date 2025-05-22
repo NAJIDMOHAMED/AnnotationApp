@@ -1,38 +1,171 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>List Datasets</title>
+    <title>Liste des Datasets</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .page-header {
+            padding: 1.5rem 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .dataset-card {
+            border: none;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .dataset-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.08);
+        }
+
+        .card-header {
+            background: linear-gradient(to right, #0d6efd, #0a58ca);
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .progress {
+            height: 18px;
+            background-color: #e9ecef;
+        }
+
+        .badge {
+            font-size: 0.85rem;
+            margin: 2px;
+        }
+
+        .btn-group .btn {
+            font-size: 0.875rem;
+        }
+
+        .modal-title {
+            font-weight: 600;
+        }
+    </style>
 </head>
 <body>
-    <div class="container mt-5">
-        <h2>Datasets</h2>
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Description</th>
-                </tr>
-            </thead>
-            <tbody>
-                
-                <tr th:each="dataset : ${datasets}">
-                    <td th:text="${dataset.nom}">Dataset Name</td>
-                    <td th:text="${dataset.description}">Description</td>
-                </tr>
-            </tbody>
-        </table>
-        <a href="/dataset/create" class="btn btn-primary">Create New Dataset</a>
-        <form th:action="@{/dataset/upload}" method="post" enctype="multipart/form-data">
-            <div class="mb-3">
-                <label for="excelFile" class="form-label">Upload Excel File</label>
-                <input type="file" class="form-control" id="excelFile" name="file" accept=".xlsx" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Upload</button>
-        </form>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center page-header">
+        <h2 class="mb-0 text-primary">
+            <i class="fas fa-database me-2"></i>Liste des Datasets
+        </h2>
+        <div>
+            <a href="/dataset/create" class="btn btn-success me-2">
+                <i class="fas fa-plus me-1"></i> Nouveau
+            </a>
+            <a href="/admin/adminHome" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i> Retour
+            </a>
+        </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mt-2">
+        <div th:each="dataset : ${datasets}" class="col">
+            <div class="card dataset-card h-100">
+                <div class="card-header text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-folder me-1"></i>
+                        <span th:text="${dataset.nom}"></span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-2"><small class="text-muted">ID:</small> <span th:text="${dataset.idDataset}"></span></p>
+                    <p class="mb-3"><small class="text-muted">Description:</small><br>
+                        <span th:text="${dataset.description != null ? dataset.description : 'Non spécifiée'}"></span>
+                    </p>
+
+                    <div class="mb-3">
+                        <small class="text-muted">Avancement:</small>
+                        <div class="progress mt-1">
+                            <div th:with="pc=${dataset.pourcentageComplet},
+                                          barClass=${pc >= 100 ? 'bg-success' : (pc >= 50 ? 'bg-warning' : 'bg-info')}"
+                                 class="progress-bar"
+                                 role="progressbar"
+                                 th:style="'width: ' + pc + '%'"
+                                 th:text="|${pc}%|"
+                                 th:classappend="${barClass}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <small class="text-muted">Classes Possibles:</small>
+                        <div class="mt-1">
+                            <span th:each="classe : ${dataset.possibleClassesSet}"
+                                  class="badge bg-info text-dark">
+                                <i class="fas fa-tag me-1"></i>
+                                <span th:text="${classe.typeClass}"></span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-light d-flex justify-content-between gap-2">
+                    <a th:href="@{'/dataset/' + ${dataset.idDataset}}" class="btn btn-sm btn-outline-primary w-100">
+                        <i class="fas fa-eye me-1"></i> Détails
+                    </a>
+
+                    <a th:href="@{'/dataset/' + ${dataset.idDataset} + '/export'}" class="btn btn-sm btn-outline-success w-100">
+                        <i class="fas fa-file-export me-1"></i> Exporter
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmation de suppression -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">Confirmer la suppression</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+            <div class="modal-body">
+                <p>Êtes-vous sûr de vouloir supprimer le dataset "<span id="datasetName" class="fw-bold text-danger"></span>" ?</p>
+                <p class="text-danger"><i class="fas fa-exclamation-triangle me-1"></i> Cette action est irréversible.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <form id="deleteForm" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash me-1"></i> Supprimer
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const deleteModal = document.getElementById('deleteModal');
+        if (deleteModal) {
+            deleteModal.addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget;
+                const datasetId = button.getAttribute('data-id');
+                const datasetName = button.getAttribute('data-name');
+
+                document.getElementById('datasetName').textContent = datasetName;
+                document.getElementById('deleteForm').action = `/dataset/${datasetId}/delete`;
+            });
+        }
+    });
+</script>
 </body>
-</html> 
+</html>

@@ -30,6 +30,18 @@ public class Dataset {
     @OneToMany(mappedBy ="dataset", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<TextPair> textPairs;
 
+    public double getPourcentageComplet() {
+        if (taches == null || taches.isEmpty()) {
+            return 0.0;
+        }
+        
+        double totalProgress = taches.stream()
+            .mapToDouble(Tache::getPourcentageComplet)
+            .sum();
+            
+        return totalProgress / taches.size();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

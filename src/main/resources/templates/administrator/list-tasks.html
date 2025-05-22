@@ -16,7 +16,7 @@
             <th>Nom d'utilisateur</th>
             <th>Date limite</th>
             <th>% Avancement</th>
-            <th>Field</th>
+            <th>Statut</th>
             <th>Actions</th>
         </tr>
         </thead>
@@ -26,12 +26,10 @@
             <td th:text="${tache.annotator != null ? tache.annotator.nom + ' ' + tache.annotator.prenom : 'Non assignée'}"></td>
             <td th:text="${#dates.format(tache.dateLimite, 'dd/MM/yyyy')}"></td>
             <td>
-                <span th:with="total=${tache.textPairs != null ? tache.textPairs.size() : 0},
-                              annotated=${tache.textPairs != null ? #lists.size(tache.textPairs.?[annotations != null and !annotations.isEmpty()]) : 0}"
-                      th:text="${total > 0 ? (annotated * 100 / total) : 0} + '%'"></span>
+                <span th:text="${tache.pourcentageComplet} + '%'"></span>
             </td>
             <td>
-                <span th:text="${tache.dateLimite != null && tache.dateLimite.time < T(java.util.Date).new().time ? 'Terminée' : 'En cours'}"></span>
+                <span th:text="${tache.dateLimite != null and tache.dateLimite.time < #dates.createNow().time ? 'Terminée' : 'En cours'}"></span>
             </td>
             <td>
                 <a th:href="@{'/annotate/tache/' + ${tache.idTache}}" class="btn btn-primary btn-sm">Travailler</a>

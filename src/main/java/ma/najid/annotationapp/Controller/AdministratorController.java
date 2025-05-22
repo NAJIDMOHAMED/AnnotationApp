@@ -30,7 +30,6 @@ public class AdministratorController {
         this.userAccountService = userAccountService;
     }
 
-    // Web interface endpoint
     @GetMapping("/administrator")
     public String getAdministrator(Model model) {
         userAccountService.getAdmin()
@@ -40,7 +39,6 @@ public class AdministratorController {
 
 
 
-    // REST API endpoints
     @PostMapping("/api/administrator")
     @ResponseBody
     public ResponseEntity<?> showAdmin() {

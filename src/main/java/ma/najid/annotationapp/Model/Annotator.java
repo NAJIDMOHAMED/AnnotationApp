@@ -11,6 +11,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @DiscriminatorValue("ANNOTATOR_ROLE")
 @EqualsAndHashCode(callSuper = true)
+@PrimaryKeyJoinColumn(name = "idUser")
 public class Annotator extends UserAccount {
 
     @OneToMany(mappedBy = "annotator", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -23,4 +24,3 @@ public class Annotator extends UserAccount {
 
 
 }
-

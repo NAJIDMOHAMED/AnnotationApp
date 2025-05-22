@@ -1,14 +1,17 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Annotator Dashboard - Annotation App</title>
+    <title>Tableau de bord Annotateur - Application d'Annotation</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
             --primary-color: #4a90e2;
             --primary-hover: #357abd;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
             --text-color: #333;
             --bg-color: #f8f9fa;
             --white: #ffffff;
@@ -124,41 +127,6 @@
             color: var(--primary-color);
         }
 
-        .action-buttons {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-        }
-
-        .action-btn {
-            padding: 1rem;
-            background: var(--white);
-            border: 2px solid var(--primary-color);
-            border-radius: 8px;
-            color: var(--primary-color);
-            text-decoration: none;
-            text-align: center;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-        }
-
-        .action-btn:hover {
-            background: var(--primary-color);
-            color: var(--white);
-        }
-
-        .action-btn.primary {
-            background: var(--primary-color);
-            color: var(--white);
-        }
-
-        .action-btn.primary:hover {
-            background: var(--primary-hover);
-        }
-
         .tasks-section {
             background: var(--white);
             padding: 2rem;
@@ -183,6 +151,8 @@
             padding: 1.5rem;
             border-radius: 8px;
             transition: var(--transition);
+            position: relative;
+            overflow: hidden;
         }
 
         .task-card:hover {
@@ -190,126 +160,229 @@
             box-shadow: var(--shadow);
         }
 
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
         .task-title {
             font-weight: 600;
-            margin-bottom: 1rem;
+            color: var(--text-color);
+            font-size: 1.2rem;
+        }
+
+        .task-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .status-completed {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .status-in-progress {
+            background-color: var(--warning-color);
             color: var(--text-color);
         }
 
-        .task-info {
-            margin-bottom: 1rem;
+        .status-not-started {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .progress-container {
+            margin: 1rem 0;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: var(--primary-color);
+            transition: width 0.3s ease;
+        }
+
+        .progress-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
             color: #666;
         }
 
-        .task-info p {
-            margin-bottom: 0.5rem;
+        .task-details {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #dee2e6;
+        }
+
+        .detail-item {
             display: flex;
-            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .detail-label {
+            color: #666;
+        }
+
+        .detail-value {
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        .task-actions {
+            margin-top: 1rem;
+            display: flex;
             gap: 0.5rem;
         }
 
-        @media (max-width: 768px) {
-            .navbar {
-                padding: 1rem;
-            }
+        .task-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: var(--transition);
+            flex: 1;
+            text-align: center;
+        }
 
-            .main-content {
-                padding: 1rem;
-            }
+        .task-btn.primary {
+            background: var(--primary-color);
+            color: var(--white);
+        }
 
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
+        .task-btn.primary:hover {
+            background: var(--primary-hover);
+        }
 
-            .task-grid {
-                grid-template-columns: 1fr;
-            }
+        .task-btn.secondary {
+            background: var(--bg-color);
+            color: var(--text-color);
+            border: 1px solid #dee2e6;
+        }
+
+        .task-btn.secondary:hover {
+            background: #e9ecef;
+        }
+
+        .estimated-time {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .estimated-time i {
+            color: var(--primary-color);
         }
     </style>
 </head>
 <body>
     <nav class="navbar">
-        <a href="#" class="navbar-brand">Annotation App</a>
+        <a href="#" class="navbar-brand">Application d'Annotation</a>
         <div class="user-info">
-            <span th:text="${username}">User</span>
-            <a th:href="@{/annotator/profile(id=${user.idUser})}" class="logout-btn">
-                <i class="fas fa-user"></i> Profile
-            </a>
-            <a href="/logout" class="logout-btn">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </a>
+            <span th:text="${user.email}"></span>
+            <a href="/logout" class="logout-btn">Déconnexion</a>
         </div>
     </nav>
 
     <div class="main-content">
-        <div class="welcome-section">
-            <h1>Welcome to Your Dashboard</h1>
-            <p>Here you can manage your annotation tasks and track your progress.</p>
-        </div>
+        <section class="welcome-section">
+            <h1>Bienvenue, <span th:text="${user.nom}"></span> !</h1>
+            <p>Voici un aperçu de vos tâches d'annotation en cours.</p>
+        </section>
 
-        <div class="stats-grid">
+        <section class="stats-grid">
             <div class="stat-card">
-                <h3>Total Tasks</h3>
-                <div class="number" th:text="${user.taches.size()}">0</div>
-            </div>
-            <div class="stat-card">
-                <h3>Completed</h3>
-                <div class="number" th:text="${user.annotations.size()}">0</div>
+                <h3>Tâches Totales</h3>
+                <div class="number" th:text="${totalCount}">0</div>
             </div>
             <div class="stat-card">
-                <h3>In Progress</h3>
-                <div class="number" th:text="${user.taches.size() - user.annotations.size()}">0</div>
+                <h3>Tâches Complétées</h3>
+                <div class="number" th:text="${completedCount}">0</div>
             </div>
             <div class="stat-card">
-                <h3>Pending</h3>
-                <div class="number" th:text="${user.taches.size()}">0</div>
+                <h3>Tâches en Cours</h3>
+                <div class="number" th:text="${inProgressCount}">0</div>
             </div>
-        </div>
+        </section>
 
-        <div class="tasks-section">
-            <h2>Mes tâches d'annotation</h2>
-
-            <!-- Aucune tâche -->
-            <div th:if="${user.taches == null or #lists.isEmpty(user.taches)}" class="task-card">
-                <p th:if="${not #strings.isEmpty(noTaskMessage)}" th:text="${noTaskMessage}"></p>
-                <p th:unless="${not #strings.isEmpty(noTaskMessage)}">Vous n'avez aucune tâche à annoter pour le moment.</p>
-            </div>
-
-            <!-- Liste des tâches -->
-            <div th:unless="${user.taches == null or #lists.isEmpty(user.taches)}" class="task-grid">
-                <div th:each="tache : ${user.taches}" class="task-card">
-                    <h3 class="task-title" th:text="${tache.dataset.nom}">Task Name</h3>
-                    <div class="task-info">
-                        <p><i class="fas fa-calendar"></i> Date limite:
-                            <span th:text="${#dates.format(tache.dateLimite, 'dd/MM/yyyy')}">01/01/2025</span>
-                        </p>
-                        <p><i class="fas fa-list-check"></i> Couples à annoter:
-                            <span th:text="${tache.textPairs.size()}">0</span>
-                        </p>
+        <section class="tasks-section">
+            <h2>Mes Tâches</h2>
+            <div class="task-grid">
+                <div th:each="tache : ${taches}" class="task-card">
+                    <div class="task-header">
+                        <h3 class="task-title" th:text="${tache.nomTache}">Nom de la tâche</h3>
+                        <div class="task-status" th:classappend="${tache.statut.name() == 'COMPLETED' ? 'status-completed' : 
+                                             (tache.statut.name() == 'IN_PROGRESS' ? 'status-in-progress' : 'status-not-started')}">
+                            <span class="status-text" th:text="${tache.statut.name() == 'COMPLETED' ? 'Terminée' : 
+                                             (tache.statut.name() == 'IN_PROGRESS' ? 'En cours' : 'Non commencée')}">Status</span>
+                        </div>
                     </div>
-                    <a th:href="@{'/annotate/tache/' + ${tache.idTache} + '?annotatorId=' + ${user.idUser}}" class="action-btn primary">
-                        <i class="fas fa-pen-to-square"></i> Commencer l'annotation
-                    </a>
+
+                    <div class="progress-container">
+                        <div class="progress-bar">
+                            <div class="progress-fill" 
+                                 th:style="'width: ' + ${#numbers.formatDecimal(tache.pourcentageComplet, 1, 0)} + '%'"
+                                 th:text="${#numbers.formatDecimal(tache.pourcentageComplet, 1, 0)} + '%'">
+                            </div>
+                        </div>
+                        <div class="progress-stats">
+                            <span th:text="${tache.nombreAnnotes} + ' annotés'"></span>
+                            <span th:text="${tache.nombreTotal} + ' au total'"></span>
+                        </div>
+                    </div>
+
+                    <div class="task-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Dataset:</span>
+                            <span class="detail-value" th:text="${tache.dataset.nom}">Nom du dataset</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Date de début:</span>
+                            <span class="detail-value" th:text="${#dates.format(tache.dateDebut, 'dd/MM/yyyy')}">Date</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Date limite:</span>
+                            <span class="detail-value" th:text="${#dates.format(tache.dateLimite, 'dd/MM/yyyy')}">Date</span>
+                        </div>
+                        <div class="estimated-time">
+                            <i class="fas fa-clock"></i>
+                            <span th:text="${tache.tempsEstime}">Temps estimé</span>
+                        </div>
+                    </div>
+
+                    <div class="task-actions">
+                        <a th:href="@{/annotate/tache/{id}(id=${tache.idTache}, annotatorId=${user.idUser})}" 
+                           class="task-btn primary" 
+                           th:text="${tache.statut.name() == 'COMPLETED' ? 'Voir les annotations' : 'Continuer l''annotation'}">
+                            Commencer à annoter
+                        </a>
+                        <a th:href="@{'/annotator/tache/' + ${tache.idTache} + '/details'}" 
+                           class="task-btn secondary">
+                            Détails
+                        </a>
+                    </div>
                 </div>
             </div>
-        </div>
-
-        <div class="action-buttons">
-            <a th:if="${user.taches != null and !#lists.isEmpty(user.taches)}"
-               th:href="@{'/annotate/tache/' + ${user.taches[0].idTache} + '?annotatorId=' + ${user.idUser}}"
-               class="action-btn primary">
-                <i class="fas fa-pen-to-square"></i> Commencer l'annotation
-            </a>
-            <a th:href="@{/annotator/profile(id=${user.idUser})}" class="action-btn">
-                <i class="fas fa-user"></i> My Profile
-            </a>
-            <a href="/annotator/history" class="action-btn">
-                <i class="fas fa-history"></i> Annotation History
-            </a>
-            <a href="/annotator/guidelines" class="action-btn">
-                <i class="fas fa-book"></i> Guidelines
-            </a>
-        </div>
+        </section>
     </div>
 </body>
 </html> 

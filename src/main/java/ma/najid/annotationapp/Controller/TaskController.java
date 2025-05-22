@@ -1,9 +1,12 @@
 package ma.najid.annotationapp.Controller;
 
 import ma.najid.annotationapp.Model.Annotator;
+import ma.najid.annotationapp.Model.Dataset;
 import ma.najid.annotationapp.Model.Tache;
+import ma.najid.annotationapp.dto.TacheDTO;
 import ma.najid.annotationapp.service.AnnotatorService;
 import ma.najid.annotationapp.service.TacheService;
+import ma.najid.annotationapp.service.DatasetService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -23,20 +26,41 @@ public class TaskController {
     @Autowired
     private AnnotatorService annotatorService;
 
-    @GetMapping("/assign")
+    @Autowired
+    private DatasetService datasetService;
+
+    @GetMapping("/assign/page")
     public String showAssignTasksPage(Model model) {
-        List<Annotator> annotators = annotatorService.getAllAnnotators();
+        Dataset currentDataset = datasetService.getDatasetById(1L); // TODO: Remplacer par getCurrentDatasetId()
+        if (currentDataset == null) {
+            model.addAttribute("errorMessage", "Veuillez d'abord créer un dataset.");
+            return "administrator/assign-tasks";
+        }
+
+        // Récupérer les annotateurs assignés
+        List<Annotator> assignedAnnotators = annotatorService.getAnnotatorsByDataset(currentDataset.getIdDataset());
+        
+        // Récupérer tous les annotateurs
+        List<Annotator> allAnnotators = annotatorService.getAllAnnotators();
+        
+        // Filtrer pour obtenir les annotateurs disponibles
+        List<Annotator> availableAnnotators = allAnnotators.stream()
+            .filter(annotator -> !assignedAnnotators.contains(annotator))
+            .toList();
+
         int unassignedPairs = tacheService.getRemainingUnassignedPairs();
         int maxAnnotators = unassignedPairs / 20 + (unassignedPairs % 20 > 0 ? 1 : 0);
         
-        model.addAttribute("annotators", annotators);
+        model.addAttribute("dataset", currentDataset);
+        model.addAttribute("availableAnnotators", availableAnnotators);
+        model.addAttribute("assignedAnnotators", assignedAnnotators);
         model.addAttribute("unassignedPairs", unassignedPairs);
         model.addAttribute("maxAnnotators", maxAnnotators);
         model.addAttribute("pairsPerAnnotator", 20);
         return "administrator/assign-tasks";
     }
 
-    @PostMapping("/assign")
+    @PostMapping("/assign/ajax")
     @ResponseBody
     public ResponseEntity<?> assignTasks(@RequestBody List<Long> annotatorIds) {
         try {
@@ -60,25 +84,6 @@ public class TaskController {
                 "success", false,
                 "message", e.getMessage()
             ));
-        }
-    }
-
-    // DTO interne pour la réponse JSON
-    public static class TacheDTO {
-        public Long idTache;
-        public String annotateurNom;
-        public String annotateurPrenom;
-        public String annotateurEmail;
-        public java.util.Date dateLimite;
-        public int nombrePaires;
-
-        public TacheDTO(Tache t) {
-            this.idTache = t.getIdTache();
-            this.annotateurNom = t.getAnnotator() != null ? t.getAnnotator().getNom() : null;
-            this.annotateurPrenom = t.getAnnotator() != null ? t.getAnnotator().getPrenom() : null;
-            this.annotateurEmail = t.getAnnotator() != null ? t.getAnnotator().getEmail() : null;
-            this.dateLimite = t.getDateLimite();
-            this.nombrePaires = t.getTextPairs() != null ? t.getTextPairs().size() : 0;
         }
     }
 
