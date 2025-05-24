@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -44,11 +44,12 @@
                                 <th>First Name</th>
                                 <th>Last Name</th>
                                 <th>Email</th>
+                                <th>Password</th>
                                 <th class="text-center">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr th:if="${annotators.empty}">
+                        <tr th:if="${#lists.isEmpty(annotators)}">
                                 <td colspan="5">
                                     <div class="empty-state">
                                         <i class="fas fa-users"></i>
@@ -62,6 +63,7 @@
                                 <td th:text="${annotator.prenom}"></td>
                                 <td th:text="${annotator.nom}"></td>
                                 <td th:text="${annotator.email}"></td>
+                                <td th:text="${annotator.password}"></td>
                                 <td class="text-center action-buttons">
                                     <button class="btn btn-info" th:onclick="'editAnnotator(' + ${annotator.idUser} + ')'" 
                                             title="Edit Annotator">
@@ -110,7 +112,8 @@
                             <div class="mb-3">
                                 <label class="form-label">Password</label>
                                 <input type="password" class="form-control" name="password" required 
-                                       placeholder="Enter password">
+                                       placeholder="Enter password"
+                                       th:value="${generatedPassword}">
                             </div>
                             <div class="modal-footer px-0 pb-0">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">

@@ -2,8 +2,7 @@ package ma.najid.annotationapp.Controller;
 
 import ma.najid.annotationapp.Model.Administrator;
 import ma.najid.annotationapp.Model.UserAccount;
-import ma.najid.annotationapp.service.AdministratorService;
-import ma.najid.annotationapp.service.UserAccountService;
+import ma.najid.annotationapp.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,14 +22,19 @@ public class AdministratorController {
 
     private final AdministratorService administratorService;
     private  final UserAccountService userAccountService;
+    private final AnnotatorService annotatorService;
+    private  final DatasetService datasetService;
+    private final TacheService tacheService;
 
     @Autowired
-    public AdministratorController(AdministratorService administratorService, UserAccountService userAccountService) {
+    public AdministratorController(AdministratorService administratorService, UserAccountService userAccountService, AnnotatorService annotatorService, DatasetService datasetService, TacheService tacheService) {
         this.administratorService = administratorService;
         this.userAccountService = userAccountService;
+        this.annotatorService = annotatorService;
+        this.datasetService = datasetService;
+        this.tacheService = tacheService;
     }
 
-    // Web interface endpoint
     @GetMapping("/administrator")
     public String getAdministrator(Model model) {
         userAccountService.getAdmin()
@@ -40,7 +44,6 @@ public class AdministratorController {
 
 
 
-    // REST API endpoints
     @PostMapping("/api/administrator")
     @ResponseBody
     public ResponseEntity<?> showAdmin() {
@@ -86,9 +89,14 @@ public class AdministratorController {
 
     @GetMapping("/admin/adminHome")
     public String showAdminHome(Model model) {
-        // Add any necessary data for the dashboard
-        model.addAttribute("activeAnnotators", 0); // You can replace with actual count
-        model.addAttribute("totalDatasets", 0);    // You can replace with actual count
+        int activeAnnotators = annotatorService.countActiveAnnotators();
+        int totalDatasets = datasetService.countDatasets();
+        int completedTasks = tacheService.countCompletedTasks();
+        int averageProgress = tacheService.getAverageProgress();
+        model.addAttribute("activeAnnotators", activeAnnotators);
+        model.addAttribute("totalDatasets", totalDatasets);
+        model.addAttribute("completedTasks", completedTasks);
+        model.addAttribute("averageProgress", averageProgress);
         return "administrator/adminHome";
     }
 } 

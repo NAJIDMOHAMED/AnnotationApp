@@ -1,118 +1,285 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="fr">
 <head>
-    <title>Annotation</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+    <title>Annotation</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link rel="stylesheet" th:href="@{/css/annotate.css}" >
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const radios = document.querySelectorAll('.radio-chip input[type="radio"]');
-            const form = document.querySelector('form');
-            const validerBtn = document.querySelector('.valider-btn');
-            
-            // Gestion des radios
-            radios.forEach(radio => {
-                radio.addEventListener('change', function() {
-                    radios.forEach(r => r.parentElement.classList.remove('selected'));
-                    if (this.checked) {
-                        this.parentElement.classList.add('selected');
-                    }
-                    validerBtn.disabled = false;
-                });
-            });
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 2rem;
+            background-color: #f5f7fa;
+            color: #2d3748;
+        }
 
-            // Désactiver le bouton valider par défaut
-            if (validerBtn) validerBtn.disabled = true;
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
 
-            // Gestion de la validation
-            form.addEventListener('submit', function(e) {
-                if (validerBtn.disabled) {
-                    e.preventDefault();
-                    return;
-                }
-                
-                // Si c'est une validation, on change l'action pour aller au suivant
-                if (e.submitter && e.submitter.value === 'validate') {
-                    e.preventDefault();
-                    const nextIndex = parseInt(document.querySelector('input[name="index"]').value) + 1;
-                    const total = parseInt(document.querySelector('.progress span:last-child').textContent);
-                    const currentPage = Math.floor(nextIndex / 20);
-                    const maxPage = Math.ceil(total / 20) - 1;
-                    
-                    if (nextIndex < total) {
-                        if (nextIndex % 20 === 0 && currentPage <= maxPage) {
-                            // Si on atteint la fin d'une page, on change de page
-                            document.querySelector('input[name="page"]').value = currentPage;
-                            document.querySelector('input[name="action"]').value = 'page';
-                        } else {
-                            document.querySelector('input[name="action"]').value = 'next';
-                        }
-                        form.submit();
-                    } else {
-                        // Si c'est le dernier couple, on soumet normalement
-                        form.submit();
-                    }
-                }
-            });
-        });
-    </script>
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .home-link {
+            text-decoration: none;
+            color: #4a5568;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .home-link:hover {
+            color: #2b6cb0;
+        }
+
+        .text-pair-container {
+            background: #f8fafc;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+
+        .text-pair {
+            margin-bottom: 1.5rem;
+        }
+
+        .text-pair:last-child {
+            margin-bottom: 0;
+        }
+
+        .text-label {
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 0.5rem;
+        }
+
+        .text-content {
+            background: white;
+            padding: 1rem;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+            font-size: 1.1rem;
+            line-height: 1.5;
+        }
+
+        .progress-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 12px;
+            background-color: #edf2f7;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: #4299e1;
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 10px;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: #718096;
+        }
+
+        .annotation-form {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 1rem;
+            color: #2d3748;
+            background-color: white;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: #4299e1;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+        }
+
+        .navigation-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+        }
+
+        .btn-primary {
+            background-color: #4299e1;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #3182ce;
+        }
+
+        .btn-secondary {
+            background-color: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .btn-secondary:hover {
+            background-color: #cbd5e0;
+        }
+
+        .task-info {
+            font-size: 0.9rem;
+            color: #718096;
+            margin-bottom: 1rem;
+        }
+
+        .task-info strong {
+            color: #4a5568;
+        }
+    </style>
 </head>
 <body>
-<div class="annotation-container">
-    <div class="header-row">
-        <div><i class="fa-solid fa-hashtag" aria-hidden="true"></i> Id_Coupe : <span th:text="${tache.idTache}"></span></div>
-        <div><i class="fa-solid fa-fingerprint" aria-hidden="true"></i> Couple ID : <span th:text="${textPair.idTextPair}"></span></div>
-        <div>Description : <span th:text="${dataset.description}"></span></div>
-    </div>
-    <div class="progress" role="status" aria-live="polite">
-        <div class="progress-info">
-            <span th:text="${index + 1}"></span>/<span th:text="${total}"></span> à annoter
+    <div class="container">
+        <div class="header">
+            <div class="task-info">
+                <strong>Tâche:</strong> <span th:text="${response.taskId}"></span> |
+                <strong>Couple:</strong> <span th:text="${response.textPairId}"></span>
+            </div>
+            <a th:href="@{'/annotator/home?id=' + ${response.annotatorId}}" class="home-link">
+                <i class="fas fa-home"></i> Accueil
+            </a>
         </div>
-        <div class="page-info">
-            Page <span th:text="${currentPage + 1}"></span>/<span th:text="${totalPages}"></span>
+
+        <div class="text-pair-container">
+            <div class="text-pair">
+                <div class="text-label">Texte 1:</div>
+                <div class="text-content" th:text="${response.text1}"></div>
+            </div>
+            <div class="text-pair">
+                <div class="text-label">Texte 2:</div>
+                <div class="text-content" th:text="${response.text2}"></div>
+            </div>
+        </div>
+
+        <div class="progress-section">
+            <div class="progress-container">
+                <div class="progress-bar" role="progressbar" 
+                     th:style="'width: ' + ${response.progress} + '%'" 
+                     th:aria-valuenow="${response.progress}" 
+                     aria-valuemin="0" 
+                     aria-valuemax="100">
+                    <span th:text="${response.progress} + '%'"></span>
+                </div>
+            </div>
+            <div class="progress-info">
+                <span th:text="${response.currentIndex + 1} + ' / ' + ${response.totalPairs} + ' paires'"></span>
+                <span th:if="${response.remainingPairs > 0}" th:text="${response.remainingPairs} + ' restantes'"></span>
+            </div>
+        </div>
+
+        <div class="navigation-buttons">
+            <form th:action="@{/annotate/tache/{id}(id=${response.taskId})}" method="post" class="annotation-form">
+                <input type="hidden" name="textPairId" th:value="${response.textPairId}">
+                <input type="hidden" name="annotatorId" th:value="${response.annotatorId}">
+                <input type="hidden" name="index" th:value="${response.currentIndex}">
+                
+                <div class="form-group">
+                    <label class="form-label">Sélectionner la classe :</label>
+                    <div class="btn-group" role="group" aria-label="Choix de la classe">
+                        <th:block th:each="possibleClass : ${possibleClasses}">
+                            <input type="radio"
+                                   class="btn-check"
+                                   name="possibleClassId"
+                                   th:id="'class-' + ${possibleClass.id}"
+                                   th:value="${possibleClass.id}"
+                                   required>
+                            <label class="btn btn-outline-primary"
+                                   th:for="'class-' + ${possibleClass.id}"
+                                   th:text="${possibleClass.typeClass}"></label>
+                        </th:block>
+                    </div>
+                </div>
+                <a th:if="${response.currentIndex > 0}"
+                   th:href="@{/annotate/tache/{id}(id=${response.taskId}, index=${response.currentIndex - 1})}"
+                   class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Précédent
+                </a>
+                
+                <button type="submit" class="btn btn-primary">
+                    <span th:if="${response.remainingPairs > 0}">
+                        <i class="fas fa-save"></i> Enregistrer & Suivant
+                    </span>
+                    <span th:unless="${response.remainingPairs > 0}">
+                        <i class="fas fa-check"></i> Terminer
+                    </span>
+                </button>
+            </form>
         </div>
     </div>
-    <form th:action="@{'/annotate/tache/' + ${tache.idTache}}" method="post" autocomplete="off">
-        <div class="input-label"><label for="text1">Text1</label></div>
-        <input id="text1" class="text-input" type="text" th:value="${textPair.text1}" readonly title="Texte 1" placeholder="Texte 1" aria-label="Premier texte à annoter"/>
-        <div class="input-label"><label for="text2">Text2</label></div>
-        <input id="text2" class="text-input" type="text" th:value="${textPair.text2}" readonly title="Texte 2" placeholder="Texte 2" aria-label="Deuxième texte à annoter"/>
-        <fieldset class="radio-group" aria-labelledby="annotation-legend">
-            <legend id="annotation-legend" class="visually-hidden">Choisissez une classe pour l'annotation</legend>
-            <th:block th:each="cls,iter : ${possibleClasses}">
-                <label class="radio-chip" th:for="${'classRadio' + iter.index}">
-                    <input type="radio" 
-                           name="possibleClassId" 
-                           th:id="${'classRadio' + iter.index}" 
-                           th:value="${cls.idPossibleClass}" 
-                           th:aria-label="${'Sélectionner la classe ' + cls.typeClass}"
-                           required/>
-                    <span th:text="${cls.typeClass}"></span>
-                </label>
-            </th:block>
-        </fieldset>
-        <input type="hidden" name="textPairId" th:value="${textPair.idTextPair}" title="Id du couple de texte" />
-        <input type="hidden" name="index" th:value="${index}" title="Index du couple" />
-        <input type="hidden" name="page" th:value="${currentPage}" title="Page courante" />
-        <input type="hidden" name="annotatorId" th:value="${annotatorId}" />
-        <div class="nav-btns">
-            <button type="submit" name="action" value="prev" th:disabled="${index == 0}" aria-label="Aller au couple précédent">
-                <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Précédent
-            </button>
-            <button type="submit" class="valider-btn" name="action" value="next" aria-label="Valider l'annotation">Valider</button>
-            <button type="submit" name="action" value="next" th:disabled="${index + 1 == total}" aria-label="Aller au couple suivant">
-                Suivant <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
-            </button>
-        </div>
-    </form>
-    <div class="footer-info" role="note">
-        <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
-        Utilisez les flèches pour naviguer, puis validez votre choix. 20 couples par page.
+
+    <!-- Debug Information -->
+    <div th:if="${@environment.getProperty('spring.profiles.active') == 'dev'}" 
+         style="margin-top: 20px; padding: 10px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px;">
+        <h4>Debug Information:</h4>
+        <pre>
+            Current Index: <span th:text="${response.currentIndex}"></span>
+            Total Pairs: <span th:text="${response.totalPairs}"></span>
+            Remaining Pairs: <span th:text="${response.remainingPairs}"></span>
+            Text Pair ID: <span th:text="${response.textPairId}"></span>
+            Task ID: <span th:text="${response.taskId}"></span>
+        </pre>
     </div>
-</div>
 </body>
 </html>

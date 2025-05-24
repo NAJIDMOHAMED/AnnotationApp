@@ -2,10 +2,12 @@ package ma.najid.annotationapp.Model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import java.util.Date;
 
 @Entity
 @Data
+@EqualsAndHashCode(exclude = {"annotator", "textPair", "possibleClass"})
 public class Annotation {
 
     @Id
@@ -13,7 +15,11 @@ public class Annotation {
     private Long idAnnotation;
 
     @ManyToOne
-    @JoinColumn(name = "id_annotator")
+    @JoinColumn(
+        name = "id_annotator",
+        foreignKey = @ForeignKey(name = "FK_ANNOTATION_ANNOTATOR"),
+        referencedColumnName = "idUser"
+    )
     private Annotator annotator;
 
     @ManyToOne
@@ -26,4 +32,6 @@ public class Annotation {
 
     @Temporal(TemporalType.TIMESTAMP)
     private Date dateAnnotation;
+
+
 }

@@ -16,7 +16,7 @@ public class DataInitializer implements CommandLineRunner {
 
     private final RoleRepository roleRepository;
     private final AnnotatorServiceImpl annotatorServiceImpl;
-    private AdministratorServiceImpl administratorService;
+    private final AdministratorServiceImpl administratorService;
 
     @Autowired
     public DataInitializer(RoleRepository roleRepository, AdministratorServiceImpl administratorService, AnnotatorServiceImpl annotatorServiceImpl) {
@@ -32,44 +32,56 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void initializeRoles() {
-        // Check and create ADMIN_ROLE
-        if (!roleRepository.findByNomRole(TypeRole.ADMIN_ROLE).isPresent()) {
-            Role adminRole = new Role();
-            adminRole.setNomRole(TypeRole.ADMIN_ROLE);
-            roleRepository.save(adminRole);
+        // Vérifier si le rôle ADMIN existe déjà
+        Role adminRole = roleRepository.findByNomRole(TypeRole.ADMIN_ROLE)
+                .orElseGet(() -> {
+                    Role role = new Role();
+                    role.setNomRole(TypeRole.ADMIN_ROLE);
+                    return roleRepository.save(role);
+                });
+
+        // Vérifier si l'administrateur existe déjà
+        if (!administratorService.existsByEmail("admin123@gmail.com")) {
+            Administrator admin = new Administrator();
+            admin.setNom("Admin");
+            admin.setPrenom("Admin");
+            admin.setEmail("admin123@gmail.com");
+            admin.setPassword("1234"); // Mot de passe en clair pour le test
+            admin.setEnabled(true);
+            admin.setRole(adminRole);
+            administratorService.saveAdministrator(admin);
         }
 
-        // Check and create ANNOTATOR_ROLE
-        if (!roleRepository.findByNomRole(TypeRole.ANNOTATOR_ROLE).isPresent()) {
-            Role annotatorRole = new Role();
-            annotatorRole.setNomRole(TypeRole.ANNOTATOR_ROLE);
-            roleRepository.save(annotatorRole);
+        // Vérifier si le rôle ANNOTATOR existe déjà
+        Role annotatorRole = roleRepository.findByNomRole(TypeRole.ANNOTATOR_ROLE)
+                .orElseGet(() -> {
+                    Role role = new Role();
+                    role.setNomRole(TypeRole.ANNOTATOR_ROLE);
+                    return roleRepository.save(role);
+                });
+
+        // Vérifier si le premier annotateur existe déjà
+        if (!annotatorServiceImpl.existsByEmail("test3@gmail.com")) {
+            Annotator annotator = new Annotator();
+            annotator.setNom("test");
+            annotator.setPrenom("Annotator");
+            annotator.setEmail("test3@gmail.com");
+            annotator.setPassword("123"); // Mot de passe en clair pour le test
+            annotator.setEnabled(true);
+            annotator.setRole(annotatorRole);
+            annotatorServiceImpl.saveAnnotator(annotator);
         }
-        Administrator administrator = new Administrator();
-        administrator.setNom("Admin");
-        administrator.setPrenom("Admin");
-        administrator.setEmail("admin123@gmail.com");
-        administrator.setPassword("admin123");
-        administrator.setRole(roleRepository.findByNomRole(TypeRole.ADMIN_ROLE).get());
-        administratorService.saveAdministrator(administrator);
 
-
-        Annotator annotator = new Annotator();
-        annotator.setNom("test");
-        annotator.setPrenom("Annotator");
-        annotator.setEmail("test@gmail.com");
-        annotator.setPassword("123");
-        annotator.setRole(roleRepository.findByNomRole(TypeRole.ANNOTATOR_ROLE).get());
-        annotatorServiceImpl.saveAnnotator(annotator);
-
-        Annotator annotator1=new Annotator();
-        annotator1.setNom("test1");
-        annotator1.setPrenom("test1");
-        annotator1.setEmail("test1@gmail.com");
-        annotator1.setPassword("123");
-        annotator1.setRole(roleRepository.findByNomRole(TypeRole.ANNOTATOR_ROLE).get());
-        annotatorServiceImpl.saveAnnotator(annotator1);
-
-
+        // Vérifier si le deuxième annotateur existe déjà
+        if (!annotatorServiceImpl.existsByEmail("test12@gmail.com")) {
+            Annotator annotator1 = new Annotator();
+            annotator1.setNom("test1");
+            annotator1.setPrenom("test1");
+            annotator1.setEmail("test12@gmail.com");
+            annotator1.setPassword("1234"); // Mot de passe en clair pour le test
+            annotator1.setEnabled(true);
+            annotator1.setRole(annotatorRole);
+            annotatorServiceImpl.saveAnnotator(annotator1);
+        }
     }
 } 

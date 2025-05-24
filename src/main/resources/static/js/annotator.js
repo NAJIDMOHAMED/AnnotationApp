@@ -25,7 +25,7 @@ function saveAnnotator() {
     saveButton.disabled = true;
     saveButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Saving...';
 
-    fetch('/api/annotators', {
+    fetch('/annotator/api', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -86,9 +86,6 @@ function validateFormData(data) {
         errors.push('Please enter a valid email address');
     }
 
-    if (!data.password || data.password.length < 6) {
-        errors.push('Password must be at least 6 characters long');
-    }
 
     // Password complexity validation
     const passwordRegex = /^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\S+$).{6,}$/;
@@ -112,7 +109,6 @@ function isValidEmail(email) {
 
 // Show notification
 function showNotification(message, type = 'info') {
-    // Create notification element
     const notification = document.createElement('div');
     notification.className = `alert alert-${type === 'error' ? 'danger' : type} alert-dismissible fade show position-fixed top-0 end-0 m-3`;
     notification.style.zIndex = '9999';
@@ -120,44 +116,77 @@ function showNotification(message, type = 'info') {
         ${message}
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     `;
-
-    // Add to document
     document.body.appendChild(notification);
-
-    // Auto remove after 5 seconds
-    setTimeout(() => {
-        notification.remove();
-    }, 5000);
+    setTimeout(() => notification.remove(), 5000);
 }
 
 // Edit annotator
 function editAnnotator(id) {
-    fetch(`/api/annotators/${id}`)
-        .then(response => response.json())
+    if (!id) {
+        showNotification('Invalid annotator ID', 'error');
+        return;
+    }
+
+    const editButton = document.querySelector(`button[onclick="editAnnotator(${id})"]`);
+    const originalButtonText = editButton.innerHTML;
+    editButton.disabled = true;
+    editButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Loading...';
+
+    fetch(`/annotator/api/${id}`)
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => {
+                    throw new Error(err.error || 'Failed to load annotator data');
+                });
+            }
+            return response.json();
+        })
         .then(data => {
             const form = document.getElementById('editAnnotatorForm');
             form.idUser.value = data.idUser;
             form.prenom.value = data.prenom;
             form.nom.value = data.nom;
             form.email.value = data.email;
-            form.password.value = data.password;
+            form.password.value = ''; // Clear password field for security
             
             new bootstrap.Modal(document.getElementById('editAnnotatorModal')).show();
         })
         .catch(error => {
             console.error('Error:', error);
-            showNotification('Error loading annotator data', 'error');
+            showNotification(error.message, 'error');
+        })
+        .finally(() => {
+            editButton.disabled = false;
+            editButton.innerHTML = originalButtonText;
         });
 }
 
 // Update annotator
 function updateAnnotator() {
     const form = document.getElementById('editAnnotatorForm');
+    const updateButton = document.querySelector('#editAnnotatorModal .btn-primary');
+    const originalButtonText = updateButton.innerHTML;
+    
+    // Validate form
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
+
     const formData = new FormData(form);
     const data = Object.fromEntries(formData.entries());
     const id = data.idUser;
 
-    fetch(`/api/annotators/${id}`, {
+    if (!id) {
+        showNotification('Invalid annotator ID', 'error');
+        return;
+    }
+
+    // Show loading state
+    updateButton.disabled = true;
+    updateButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Updating...';
+
+    fetch(`/annotator/api/${id}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
@@ -165,16 +194,36 @@ function updateAnnotator() {
         body: JSON.stringify(data)
     })
     .then(response => {
-        if (response.ok) {
-            showNotification('Annotator updated successfully!', 'success');
-            setTimeout(() => window.location.reload(), 1500);
-        } else {
-            throw new Error('Error updating annotator');
+        if (!response.ok) {
+            return response.json().then(err => {
+                if (response.status === 409) {
+                    throw new Error('Email already exists');
+                }
+                // Handle validation errors
+                if (response.status === 400) {
+                    const errorMessages = Object.entries(err)
+                        .map(([field, message]) => `${field}: ${message}`)
+                        .join('\n');
+                    throw new Error(errorMessages);
+                }
+                throw new Error(err.error || 'Error updating annotator');
+            });
         }
+        return response.json();
+    })
+    .then(data => {
+        showNotification('Annotator updated successfully!', 'success');
+        // Close modal and reload page
+        bootstrap.Modal.getInstance(document.getElementById('editAnnotatorModal')).hide();
+        setTimeout(() => window.location.reload(), 1500);
     })
     .catch(error => {
         console.error('Error:', error);
         showNotification(error.message, 'error');
+    })
+    .finally(() => {
+        updateButton.disabled = false;
+        updateButton.innerHTML = originalButtonText;
     });
 }
 
@@ -187,7 +236,7 @@ function deleteAnnotator(id) {
 // Handle delete confirmation
 document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
     if (annotatorToDelete) {
-        fetch(`/api/annotators/${annotatorToDelete}`, {
+        fetch(`/annotator/api/${annotatorToDelete}`, {
             method: 'DELETE'
         })
         .then(response => {

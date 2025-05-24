@@ -1,0 +1,35 @@
+-- -- Create the annotator table
+-- CREATE TABLE IF NOT EXISTS annotator (
+--     id_user BIGINT NOT NULL,
+--     PRIMARY KEY (id_user),
+--     FOREIGN KEY (id_user) REFERENCES user_account(id_user)
+-- );
+--
+-- -- Create the administrator table
+-- CREATE TABLE IF NOT EXISTS administrator (
+--     id_user BIGINT NOT NULL,
+--     PRIMARY KEY (id_user),
+--     FOREIGN KEY (id_user) REFERENCES user_account(id_user)
+-- );
+--
+-- -- Add user_type column to user_account if it doesn't exist
+-- ALTER TABLE user_account ADD COLUMN IF NOT EXISTS user_type VARCHAR(31) NOT NULL;
+--
+-- -- Update user_type for existing annotators
+-- UPDATE user_account u
+-- JOIN annotator a ON u.id_user = a.id_user
+-- SET u.user_type = 'ANNOTATOR_ROLE';
+--
+-- -- Update user_type for existing administrators
+-- UPDATE user_account u
+-- JOIN administrator a ON u.id_user = a.id_user
+-- SET u.user_type = 'ADMIN_ROLE';
+--
+-- -- Add foreign key constraints
+-- ALTER TABLE annotation
+-- ADD CONSTRAINT FK_annotation_annotator
+-- FOREIGN KEY (id_annotator) REFERENCES annotator(id_user);
+--
+-- ALTER TABLE tache
+-- ADD CONSTRAINT FK_tache_annotator
+-- FOREIGN KEY (annotator_id) REFERENCES annotator(id_user);

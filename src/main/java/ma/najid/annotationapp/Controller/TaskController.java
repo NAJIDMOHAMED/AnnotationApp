@@ -25,25 +25,14 @@ public class TaskController {
 
     @GetMapping("/assign")
     public String showAssignTasksPage(Model model) {
-        // Récupérer tous les annotateurs
-        List<Annotator> allAnnotators = annotatorService.getAllAnnotators();
-        System.out.println("Nombre total d'annotateurs: " + allAnnotators.size());
-        
-        // Afficher les détails de chaque annotateur pour le débogage
-        allAnnotators.forEach(annotator -> {
-            System.out.println("Annotateur: " + annotator.getNom() + " " + annotator.getPrenom() + 
-                             " (ID: " + annotator.getIdUser() + ")");
-        });
-
+        List<Annotator> annotators = annotatorService.getAllAnnotators();
         int unassignedPairs = tacheService.getRemainingUnassignedPairs();
         int maxAnnotators = unassignedPairs / 20 + (unassignedPairs % 20 > 0 ? 1 : 0);
         
-        // Utiliser directement la liste complète des annotateurs
-        model.addAttribute("annotators", allAnnotators);
+        model.addAttribute("annotators", annotators);
         model.addAttribute("unassignedPairs", unassignedPairs);
         model.addAttribute("maxAnnotators", maxAnnotators);
         model.addAttribute("pairsPerAnnotator", 20);
-        
         return "administrator/assign-tasks";
     }
 
