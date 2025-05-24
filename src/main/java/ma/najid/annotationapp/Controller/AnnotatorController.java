@@ -1,9 +1,13 @@
 package ma.najid.annotationapp.Controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.hibernate6.Hibernate6Module;
 import ma.najid.annotationapp.Model.Annotator;
 import ma.najid.annotationapp.service.AnnotatorService;
+import ma.najid.annotationapp.service.Email.EmailService;
 import ma.najid.annotationapp.service.TacheService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -25,12 +29,24 @@ import java.util.Map;
 public class AnnotatorController {
     private final AnnotatorService annotatorService;
     private final TacheService tacheService;
+    private EmailService emailService;
 
     @Autowired
-    public AnnotatorController(AnnotatorService annotatorService, TacheService tacheService) {
+    public AnnotatorController(AnnotatorService annotatorService, TacheService tacheService, EmailService emailService) {
         this.annotatorService = annotatorService;
         this.tacheService = tacheService;
+        this.emailService = emailService;
     }
+
+    @Bean
+    public ObjectMapper objectMapper() {
+        ObjectMapper mapper = new ObjectMapper();
+        Hibernate6Module hibernateModule = new Hibernate6Module();
+        hibernateModule.configure(Hibernate6Module.Feature.FORCE_LAZY_LOADING, false);
+        mapper.registerModule(hibernateModule);
+        return mapper;
+    }
+
 
     @GetMapping("/list")
     public String listAnnotators(Model model) {
@@ -56,8 +72,35 @@ public class AnnotatorController {
             }
             return ResponseEntity.badRequest().body(errors);
         }
+        
+        String generatedPassword = generateRandomPassword(14);
+        
+        annotator.setPassword(generatedPassword);
+
+        
         Annotator savedAnnotator = annotatorService.saveAnnotator(annotator);
-        return ResponseEntity.ok(savedAnnotator);
+        
+        try {
+            emailService.sendPasswordEmail(annotator.getEmail(), annotator.getNom(), generatedPassword);
+            return ResponseEntity.ok(savedAnnotator);
+        } catch (RuntimeException e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("annotator", savedAnnotator);
+            response.put("warning", "L'annotateur a été créé mais l'envoi de l'email a échoué. Veuillez communiquer le mot de passe manuellement.");
+            return ResponseEntity.ok(response);
+        }
+    }
+
+    @GetMapping("/api/{id}")
+    @ResponseBody
+    public ResponseEntity<?> getAnnotator(@PathVariable Long id) {
+        try {
+            Annotator annotator = annotatorService.findById(id);
+            return ResponseEntity.ok(annotator);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(Map.of("error", "Annotator not found with id: " + id));
+        }
     }
 
     @PutMapping("/api/{id}")

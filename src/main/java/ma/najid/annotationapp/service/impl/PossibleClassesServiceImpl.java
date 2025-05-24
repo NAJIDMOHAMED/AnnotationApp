@@ -49,7 +49,8 @@ public class PossibleClassesServiceImpl implements PossibleClassesService {
             throw new AnnotationException("Error fetching possible classes", e);
         }
     }
-    
+
+
     @Override
     @Transactional(readOnly = true)
     public Optional<PossibleClasses> getPossibleClassById(Long id) {

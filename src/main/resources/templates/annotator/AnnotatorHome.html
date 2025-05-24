@@ -38,6 +38,15 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar-left, .navbar-center, .navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
         }
 
         .navbar-brand {
@@ -45,6 +54,33 @@
             font-weight: 600;
             color: var(--primary-color);
             text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .navbar-brand i {
+            font-size: 1.8rem;
+        }
+
+        .nav-link {
+            color: var(--text-color);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-link:hover {
+            background: var(--bg-color);
+            color: var(--primary-color);
+        }
+
+        .nav-link i {
+            font-size: 1.1rem;
         }
 
         .user-info {
@@ -53,8 +89,24 @@
             gap: 1rem;
         }
 
-        .user-info span {
+        .profile-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
             color: var(--text-color);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: var(--transition);
+        }
+
+        .profile-link:hover {
+            background: var(--bg-color);
+        }
+
+        .profile-link i {
+            font-size: 1.2rem;
+            color: var(--primary-color);
         }
 
         .logout-btn {
@@ -66,10 +118,36 @@
             cursor: pointer;
             text-decoration: none;
             transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         .logout-btn:hover {
             background: var(--primary-hover);
+        }
+
+        .logout-btn i {
+            font-size: 1.1rem;
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                padding: 1rem;
+                gap: 1rem;
+            }
+
+            .navbar-center {
+                order: 3;
+                width: 100%;
+                justify-content: center;
+            }
+
+            .navbar-right {
+                width: 100%;
+                justify-content: center;
+            }
         }
 
         .main-content {
@@ -295,28 +373,44 @@
     </style>
 </head>
 <body>
-    <nav class="navbar">
-        <a href="#" class="navbar-brand">Application d'Annotation</a>
-        <div class="user-info">
-            <span th:text="${user.email}"></span>
-            <a href="/logout" class="logout-btn">Déconnexion</a>
-        </div>
-    </nav>
+<nav class="navbar">
+    <div class="navbar-left">
+        <a href="#" class="navbar-brand">
+            <i class="fas fa-tasks"></i>
+            Application d'Annotation
+        </a>
+    </div>
 
-    <div class="main-content">
+    <div class="navbar-center">
+        <a th:href="@{/annotator/AnnotatorHome}" class="nav-link">
+            <i class="fas fa-list"></i> Mes Tâches
+        </a>
+        <a th:href="@{/annotator/task-details}" class="nav-link">
+            <i class="fas fa-chart-bar"></i> Statistiques
+        </a>
+    </div>
+
+    <div class="navbar-right">
+        <div class="user-info">
+            <a th:href="@{/annotator/profile(id=${user.idUser})}" class="profile-link">
+                <i class="fas fa-user-circle"></i>
+                <span th:text="${user.nom}"></span>
+            </a>
+            <a th:href="@{/logout}" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i> Déconnexion
+            </a>
+        </div>
+    </div>
+</nav>
+
+
+<div class="main-content">
         <section class="welcome-section">
             <h1>Bienvenue, <span th:text="${user.nom}"></span> !</h1>
             <p>Voici un aperçu de vos tâches d'annotation en cours.</p>
         </section>
 
-        <div class="d-flex gap-3 mb-4">
-            <a href="/admin/tasks/assign" class="btn btn-info">
-                <i class='bx bxs-task'></i> Assign Tasks
-            </a>
-            <a href="/admin/tasks/list" class="btn btn-warning">
-                <i class='bx bxs-list-ul'></i> Liste des tâches
-            </a>
-        </div>
+
 
         <section class="stats-grid">
             <div class="stat-card">

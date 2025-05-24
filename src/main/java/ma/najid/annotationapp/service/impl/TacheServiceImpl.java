@@ -201,16 +201,13 @@ public class TacheServiceImpl implements TacheService {
 
     @Override
     public int getRemainingUnassignedPairs() {
-        System.out.println("\n=== DÉBOGAGE DES PAIRES NON ASSIGNÉES ===");
 
-        // Récupérer toutes les paires de texte
+        System.out.println("\n===  tttttttttttttttttttttttttttttttttttt===");
+
         List<TextPair> allPairs = textPairRepository.findAll();
         System.out.println("Nombre total de paires de texte: " + allPairs.size());
-
-        // Récupérer toutes les tâches et collecter toutes les paires assignées
         List<Tache> allTasks = tacheRepository.findAll();
         System.out.println("Nombre total de tâches: " + allTasks.size());
-
         Set<Long> assignedPairIds = allTasks.stream()
                 .flatMap(task -> task.getTextPairs().stream())
                 .map(TextPair::getIdTextPair)
@@ -218,13 +215,11 @@ public class TacheServiceImpl implements TacheService {
 
         System.out.println("Nombre de paires déjà assignées: " + assignedPairIds.size());
 
-        // Compter les paires non assignées
         int unassignedPairs = (int) allPairs.stream()
                 .filter(pair -> !assignedPairIds.contains(pair.getIdTextPair()))
                 .count();
 
         System.out.println("Nombre de paires non assignées: " + unassignedPairs);
-        System.out.println("=== FIN DU DÉBOGAGE ===\n");
 
         return unassignedPairs;
     }

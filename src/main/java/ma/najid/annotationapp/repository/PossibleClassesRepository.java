@@ -16,6 +16,5 @@ public interface PossibleClassesRepository extends JpaRepository<PossibleClasses
     boolean existsByTypeClassAndDataset(String typeClass, Dataset dataset);
 
     void deleteByDataset(Dataset dataset);
-    // Basic CRUD operations are automatically provided by JpaRepository
-    // You can add custom query methods here if needed
+
 } 

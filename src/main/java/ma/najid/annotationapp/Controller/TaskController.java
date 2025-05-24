@@ -2,6 +2,7 @@ package ma.najid.annotationapp.Controller;
 
 import ma.najid.annotationapp.Model.Annotator;
 import ma.najid.annotationapp.Model.Tache;
+import ma.najid.annotationapp.dto.TacheDTO;
 import ma.najid.annotationapp.service.AnnotatorService;
 import ma.najid.annotationapp.service.TacheService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
 
 import java.util.List;
 import java.util.Map;
@@ -74,24 +76,7 @@ public class TaskController {
         }
     }
 
-    // DTO interne pour la réponse JSON
-    public static class TacheDTO {
-        public Long idTache;
-        public String annotateurNom;
-        public String annotateurPrenom;
-        public String annotateurEmail;
-        public java.util.Date dateLimite;
-        public int nombrePaires;
 
-        public TacheDTO(Tache t) {
-            this.idTache = t.getIdTache();
-            this.annotateurNom = t.getAnnotator() != null ? t.getAnnotator().getNom() : null;
-            this.annotateurPrenom = t.getAnnotator() != null ? t.getAnnotator().getPrenom() : null;
-            this.annotateurEmail = t.getAnnotator() != null ? t.getAnnotator().getEmail() : null;
-            this.dateLimite = t.getDateLimite();
-            this.nombrePaires = t.getTextPairs() != null ? t.getTextPairs().size() : 0;
-        }
-    }
 //
 //    @GetMapping("/list")
 //    public String listTasks(Model model) {

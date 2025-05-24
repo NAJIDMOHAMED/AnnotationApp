@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -49,7 +49,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr th:if="${annotators.empty}">
+                        <tr th:if="${#lists.isEmpty(annotators)}">
                                 <td colspan="5">
                                     <div class="empty-state">
                                         <i class="fas fa-users"></i>
