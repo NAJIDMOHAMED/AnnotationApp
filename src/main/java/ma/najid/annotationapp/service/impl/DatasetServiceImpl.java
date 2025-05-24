@@ -30,20 +30,20 @@ import java.util.Comparator;
 public class DatasetServiceImpl implements DatasetService {
     private static final Logger logger = LoggerFactory.getLogger(DatasetServiceImpl.class);
 
+    private final TextPairRepository textPairRepository;
+    private final DatasetRepository datasetRepository;
+    private final PossibleClassesRepository possibleClassesRepository;
+    private final TacheRepository tacheRepository;
+    private final AnnotatorRepository annotatorRepository;
     @Autowired
-    private TextPairRepository textPairRepository;
+    public DatasetServiceImpl(TextPairRepository textPairRepository, DatasetRepository datasetRepository, PossibleClassesRepository possibleClassesRepository, TacheRepository tacheRepository, AnnotatorRepository annotatorRepository) {
+        this.textPairRepository = textPairRepository;
+        this.datasetRepository = datasetRepository;
+        this.possibleClassesRepository = possibleClassesRepository;
+        this.tacheRepository = tacheRepository;
+        this.annotatorRepository = annotatorRepository;
 
-    @Autowired
-    private DatasetRepository datasetRepository;
-
-    @Autowired
-    private PossibleClassesRepository possibleClassesRepository;
-
-    @Autowired
-    private TacheRepository tacheRepository;
-
-    @Autowired
-    private AnnotatorRepository annotatorRepository;
+    }
 
     @Override
     @Transactional
@@ -148,7 +148,7 @@ public class DatasetServiceImpl implements DatasetService {
                               savedPairs.size(), dataset.getIdDataset());
                     
                     // Create tasks for all annotators
-                    createTasksForAllAnnotators(dataset, savedPairs);
+//                    createTasksForAllAnnotators(dataset, savedPairs);
                 } else {
                     logger.warn("No valid text pairs found in the Excel file");
                 }
@@ -297,6 +297,11 @@ public class DatasetServiceImpl implements DatasetService {
     @Override
     public int getRemainingPairs(Long datasetId) {
         return textPairRepository.findByDataset_IdDatasetAndTacheIsNull(datasetId).size();
+    }
+
+    @Override
+    public int countDatasets() {
+        return (int) datasetRepository.count();
     }
 
 } 

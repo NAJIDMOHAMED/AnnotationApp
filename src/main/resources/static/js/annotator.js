@@ -25,7 +25,7 @@ function saveAnnotator() {
     saveButton.disabled = true;
     saveButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Saving...';
 
-    fetch('/api/annotators', {
+    fetch('/annotator/api', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -132,7 +132,7 @@ function showNotification(message, type = 'info') {
 
 // Edit annotator
 function editAnnotator(id) {
-    fetch(`/api/annotators/${id}`)
+    fetch(`/annotator/api/${id}`)
         .then(response => response.json())
         .then(data => {
             const form = document.getElementById('editAnnotatorForm');
@@ -157,7 +157,7 @@ function updateAnnotator() {
     const data = Object.fromEntries(formData.entries());
     const id = data.idUser;
 
-    fetch(`/api/annotators/${id}`, {
+    fetch(`/annotator/api/${id}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
@@ -187,7 +187,7 @@ function deleteAnnotator(id) {
 // Handle delete confirmation
 document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
     if (annotatorToDelete) {
-        fetch(`/api/annotators/${annotatorToDelete}`, {
+        fetch(`/annotator/api/${annotatorToDelete}`, {
             method: 'DELETE'
         })
         .then(response => {

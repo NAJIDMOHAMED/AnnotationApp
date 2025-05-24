@@ -20,4 +20,6 @@ public interface DatasetService {
     List<Map<String, String>> getAnnotatedPairs(Long datasetId);
 
     int getRemainingPairs(Long datasetId);
+
+    int countDatasets();
 }

@@ -1,6 +1,7 @@
 package ma.najid.annotationapp.repository;
 
 import ma.najid.annotationapp.Model.Annotator;
+import ma.najid.annotationapp.Model.TYPES.StatutTache;
 import ma.najid.annotationapp.Model.Tache;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -31,4 +32,6 @@ public interface TacheRepository extends JpaRepository<Tache, Long> {
     
     // Find unassigned tasks for a specific dataset
     List<Tache> findByDataset_IdDatasetAndAnnotatorIsNull(Long datasetId);
+
+    int countByStatut(StatutTache statut);
 } 

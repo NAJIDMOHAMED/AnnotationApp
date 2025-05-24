@@ -1,6 +1,7 @@
 package ma.najid.annotationapp.service.impl;
 
 import ma.najid.annotationapp.Model.Tache;
+import ma.najid.annotationapp.Model.TYPES.StatutTache;
 import ma.najid.annotationapp.Model.Annotator;
 import ma.najid.annotationapp.Model.TextPair;
 import ma.najid.annotationapp.Model.Dataset;
@@ -21,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -199,8 +201,34 @@ public class TacheServiceImpl implements TacheService {
 
     @Override
     public int getRemainingUnassignedPairs() {
-        return textPairRepository.findByTacheIsNull().size();
+        System.out.println("\n=== DÉBOGAGE DES PAIRES NON ASSIGNÉES ===");
+
+        // Récupérer toutes les paires de texte
+        List<TextPair> allPairs = textPairRepository.findAll();
+        System.out.println("Nombre total de paires de texte: " + allPairs.size());
+
+        // Récupérer toutes les tâches et collecter toutes les paires assignées
+        List<Tache> allTasks = tacheRepository.findAll();
+        System.out.println("Nombre total de tâches: " + allTasks.size());
+
+        Set<Long> assignedPairIds = allTasks.stream()
+                .flatMap(task -> task.getTextPairs().stream())
+                .map(TextPair::getIdTextPair)
+                .collect(Collectors.toSet());
+
+        System.out.println("Nombre de paires déjà assignées: " + assignedPairIds.size());
+
+        // Compter les paires non assignées
+        int unassignedPairs = (int) allPairs.stream()
+                .filter(pair -> !assignedPairIds.contains(pair.getIdTextPair()))
+                .count();
+
+        System.out.println("Nombre de paires non assignées: " + unassignedPairs);
+        System.out.println("=== FIN DU DÉBOGAGE ===\n");
+
+        return unassignedPairs;
     }
+
 
     @Override
     @Transactional
@@ -216,6 +244,7 @@ public class TacheServiceImpl implements TacheService {
         }
 
         // Calculate pairs per annotator
+//        int pairsPerAnnotator = 20;
         int pairsPerAnnotator = unassignedPairs.size() / annotatorIds.size();
         int remainingPairs = unassignedPairs.size() % annotatorIds.size();
 
@@ -270,5 +299,23 @@ public class TacheServiceImpl implements TacheService {
     @Override
     public List<Tache> getUnassignedTasks(Long datasetId) {
         return tacheRepository.findByDataset_IdDatasetAndAnnotatorIsNull(datasetId);
+    }
+
+    @Override
+    public int countCompletedTasks() {
+        // Supposons que le statut COMPLETED existe
+        return tacheRepository.countByStatut(StatutTache.COMPLETED);
+    }
+
+    @Override
+    public int getAverageProgress() {
+        // Calculer la moyenne des pourcentages de complétion de toutes les tâches
+        List<Tache> allTasks = tacheRepository.findAll();
+        if (allTasks.isEmpty()) return 0;
+        double sum = 0;
+        for (Tache t : allTasks) {
+            sum += t.getPourcentageComplet();
+        }
+        return (int) Math.round(sum / allTasks.size());
     }
 } 

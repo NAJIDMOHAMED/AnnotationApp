@@ -230,27 +230,32 @@
         </div>
 
         <div class="navigation-buttons">
-            <a th:if="${response.currentIndex > 0}" 
-               th:href="@{/annotate/tache/{id}(id=${response.taskId}, index=${response.currentIndex - 1})}" 
-               class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> Précédent
-            </a>
-            
             <form th:action="@{/annotate/tache/{id}(id=${response.taskId})}" method="post" class="annotation-form">
                 <input type="hidden" name="textPairId" th:value="${response.textPairId}">
                 <input type="hidden" name="annotatorId" th:value="${response.annotatorId}">
                 <input type="hidden" name="index" th:value="${response.currentIndex}">
                 
                 <div class="form-group">
-                    <label for="possibleClass" class="form-label">Sélectionner la classe:</label>
-                    <select name="possibleClassId" id="possibleClass" class="form-select" required>
-                        <option value="">Choisir une classe...</option>
-                        <option th:each="possibleClass : ${possibleClasses}"
-                                th:value="${possibleClass.id}"
-                                th:text="${possibleClass.typeClass}">
-                        </option>
-                    </select>
+                    <label class="form-label">Sélectionner la classe :</label>
+                    <div class="btn-group" role="group" aria-label="Choix de la classe">
+                        <th:block th:each="possibleClass : ${possibleClasses}">
+                            <input type="radio"
+                                   class="btn-check"
+                                   name="possibleClassId"
+                                   th:id="'class-' + ${possibleClass.id}"
+                                   th:value="${possibleClass.id}"
+                                   required>
+                            <label class="btn btn-outline-primary"
+                                   th:for="'class-' + ${possibleClass.id}"
+                                   th:text="${possibleClass.typeClass}"></label>
+                        </th:block>
+                    </div>
                 </div>
+                <a th:if="${response.currentIndex > 0}"
+                   th:href="@{/annotate/tache/{id}(id=${response.taskId}, index=${response.currentIndex - 1})}"
+                   class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Précédent
+                </a>
                 
                 <button type="submit" class="btn btn-primary">
                     <span th:if="${response.remainingPairs > 0}">

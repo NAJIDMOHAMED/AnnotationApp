@@ -38,4 +38,7 @@ public interface TacheService {
     void assignTasksToAnnotators(Long datasetId, List<Long> annotatorIds);
     void removeAnnotatorFromDataset(Long datasetId, Long annotatorId);
     List<Tache> getUnassignedTasks(Long datasetId);
+
+    int countCompletedTasks();
+    int getAverageProgress();
 } 

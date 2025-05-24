@@ -27,4 +27,9 @@ public interface AnnotatorRepository extends JpaRepository<Annotator, Long> {
     """)
     List<Annotator> findAvailableAnnotators(@Param("datasetId") Long datasetId);
 
+    @Query("SELECT a FROM Annotator a WHERE a.role.nomRole = 'ANNOTATOR_ROLE'")
+    List<Annotator> findAllAnnotators();
+
+    @Query("SELECT a FROM Annotator a LEFT JOIN FETCH a.role")
+    List<Annotator> findAllWithRoles();
 } 

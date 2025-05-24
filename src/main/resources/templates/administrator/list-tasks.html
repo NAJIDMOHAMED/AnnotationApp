@@ -17,7 +17,7 @@
             <th>Date limite</th>
             <th>% Avancement</th>
             <th>Statut</th>
-            <th>Actions</th>
+
         </tr>
         </thead>
         <tbody>
@@ -31,9 +31,7 @@
             <td>
                 <span th:text="${tache.dateLimite != null and tache.dateLimite.time < #dates.createNow().time ? 'Terminée' : 'En cours'}"></span>
             </td>
-            <td>
-                <a th:href="@{'/annotate/tache/' + ${tache.idTache}}" class="btn btn-primary btn-sm">Travailler</a>
-            </td>
+
         </tr>
         </tbody>
     </table>

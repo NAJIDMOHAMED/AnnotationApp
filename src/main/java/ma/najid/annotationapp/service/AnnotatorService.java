@@ -21,4 +21,6 @@ public interface AnnotatorService {
     boolean existsById(Long id);
 
     void prepareAnnotatorHomeData(Annotator annotator, Model model);
+
+    int countActiveAnnotators();
 } 

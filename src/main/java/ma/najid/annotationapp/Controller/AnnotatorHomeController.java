@@ -2,8 +2,6 @@ package ma.najid.annotationapp.Controller;
 
 import ma.najid.annotationapp.Model.UserAccount;
 import ma.najid.annotationapp.Model.Annotator;
-import ma.najid.annotationapp.Model.Tache;
-import ma.najid.annotationapp.Model.TYPES.StatutTache;
 import ma.najid.annotationapp.service.AnnotatorService;
 import ma.najid.annotationapp.service.UserAccountService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +11,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.security.Principal;
 import java.util.Optional;
 
 import org.slf4j.Logger;

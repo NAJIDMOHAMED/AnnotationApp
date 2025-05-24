@@ -45,45 +45,78 @@ public class AnnotatorServiceImpl implements AnnotatorService {
 
     @Override
     public List<Annotator> getAllAnnotators() {
-        return annotatorRepository.findAll();
+        System.out.println("\n=== DÉBUT DU DÉBOGAGE DES ANNOTATEURS ===");
+        List<Annotator> annotators = annotatorRepository.findAllAnnotators();
+        System.out.println("Nombre total d'annotateurs trouvés: " + annotators.size());
+        
+        // Afficher les détails de chaque annotateur pour le débogage
+        annotators.forEach(annotator -> {
+            System.out.println("Annotateur: " + annotator.getIdUser() + 
+                             " - Email: " + annotator.getEmail() + 
+                             " - Nom: " + annotator.getNom() + 
+                             " - Prénom: " + annotator.getPrenom() +
+                             " - Rôle: " + (annotator.getRole() != null ? annotator.getRole().getNomRole() : "null"));
+        });
+        
+        System.out.println("=== FIN DU DÉBOGAGE DES ANNOTATEURS ===\n");
+        return annotators;
     }
 
     @Override
     public List<Annotator> getAnnotatorsByDataset(Long datasetId) {
+        System.out.println("Recherche des annotateurs pour le dataset: " + datasetId);
         List<Annotator> annotators = annotatorRepository.findByTaches_Dataset_IdDataset(datasetId);
-        System.out.println("Annotateurs assignés au dataset " + datasetId + ":");
+        System.out.println("Nombre d'annotateurs trouvés: " + annotators.size());
+        
+        // Vérifier les détails de chaque annotateur
         for (Annotator annotator : annotators) {
-            System.out.println("- " + annotator.getEmail() + 
-                             " (Rôle: " + (annotator.getRole() != null ? annotator.getRole().getNomRole() : "null") + ")");
+            System.out.println("Annotateur trouvé: " + annotator.getIdUser() + 
+                             " - Email: " + annotator.getEmail() + 
+                             " - Nom: " + annotator.getNom() + 
+                             " - Prénom: " + annotator.getPrenom());
+            
+            // Vérifier les tâches de l'annotateur
+            if (annotator.getTaches() != null) {
+                System.out.println("Nombre de tâches: " + annotator.getTaches().size());
+                annotator.getTaches().forEach(tache -> 
+                    System.out.println("  - Tâche ID: " + tache.getIdTache() + 
+                                     " - Dataset ID: " + tache.getDataset().getIdDataset()));
+            } else {
+                System.out.println("Aucune tâche trouvée pour cet annotateur");
+            }
         }
+        
         return annotators;
     }
 
     @Override
     public List<Annotator> getAvailableAnnotators(Long datasetId) {
-        System.out.println("Recherche des annotateurs disponibles pour le dataset: " + datasetId);
-        
-        // Vérifier d'abord tous les annotateurs
-        List<Annotator> allAnnotators = annotatorRepository.findAll();
-        System.out.println("Nombre total d'annotateurs: " + allAnnotators.size());
-        
-        // Vérifier les annotateurs avec le rôle ANNOTATOR_ROLE
-        List<Annotator> annotatorsWithRole = allAnnotators.stream()
-            .filter(a -> a.getRole() != null && "ANNOTATOR_ROLE".equals(a.getRole().getNomRole()))
-            .toList();
-        System.out.println("Nombre d'annotateurs avec le rôle ANNOTATOR_ROLE: " + annotatorsWithRole.size());
-        
-        // Obtenir les annotateurs disponibles
-        List<Annotator> availableAnnotators = annotatorRepository.findAvailableAnnotators(datasetId);
-        System.out.println("Nombre d'annotateurs disponibles: " + availableAnnotators.size());
-        
-        for (Annotator annotator : availableAnnotators) {
-            System.out.println("Annotateur disponible: " + annotator.getEmail() + 
-                             " (Rôle: " + (annotator.getRole() != null ? annotator.getRole().getNomRole() : "null") + ")");
+        System.out.println("\n=== DÉBUT DU DÉBOGAGE DES ANNOTATEURS (SANS FILTRAGE PAR TÂCHE) ===");
+
+        // Récupérer tous les annotateurs avec leurs rôles
+        List<Annotator> allAnnotatorsWithRoles = annotatorRepository.findAll();
+        System.out.println("\nTous les annotateurs avec leurs rôles :");
+        for (Annotator a : allAnnotatorsWithRoles) {
+            System.out.println("ID: " + a.getIdUser() +
+                    " | Email: " + a.getEmail() +
+                    " | Rôle: " + (a.getRole() != null ? a.getRole().getNomRole() : "null"));
         }
-        
-        return availableAnnotators;
+
+        // Garder uniquement ceux ayant le rôle ANNOTATOR_ROLE
+        List<Annotator> annotatorsWithRole = allAnnotatorsWithRoles.stream()
+                .filter(a -> a.getRole() != null && "ANNOTATOR_ROLE".equals(a.getRole().getNomRole()))
+                .toList();
+
+        System.out.println("\nAnnotateurs avec le rôle ANNOTATOR_ROLE (inclus même ceux déjà assignés) :");
+        for (Annotator a : annotatorsWithRole) {
+            System.out.println("ID: " + a.getIdUser() + " | Email: " + a.getEmail());
+        }
+
+        System.out.println("\n=== FIN DU DÉBOGAGE DES ANNOTATEURS ===\n");
+
+        return annotatorsWithRole;
     }
+
 
     @Override
     public Annotator findById(Long id) {
@@ -152,5 +185,10 @@ public class AnnotatorServiceImpl implements AnnotatorService {
         if (taches.isEmpty()) {
             model.addAttribute("noTaskMessage", "Vous n'avez aucune tâche à annoter pour le moment.");
         }
+    }
+
+    @Override
+    public int countActiveAnnotators() {
+        return (int) annotatorRepository.count();
     }
 } 
